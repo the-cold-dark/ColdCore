@@ -147,7 +147,7 @@ public method .makemap() {
     retval = [];
     for e in ((| source.visible_exits() |) || []) {
         dest = e.dest(source);
-        retval = retval + [(((("| " * max(0, indent - 1)) + ("+-" * (indent > 0))) + (e.path_name(source))) + " to ") + (dest.name())];
+        retval = retval + [(((("| " * max(0, indent - 1)) + ("+-" * (indent > 0))) + (e.path_name(source))) + " to ") + (dest.namef('ref))];
         if (!(dest in visited)) {
             retval = retval + (.makemap(dest, visited, indent + 1));
             visited = visited + [dest];

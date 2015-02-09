@@ -1,7 +1,7 @@
 
 new object $interface_registry: $db;
 
-var $db database = #[['object, [$page_bin_index]], ['help, [$page_bin_index]], ['display, [$page_bin_index]], ['describe, [$page_bin_index]], ['who, [$page_bin_index]], ['read, [$note]], ['method, [$page_bin_index]], ['generate, [$page_login]], ['submit_new, [$page_web_prefs]], ['change, []]];
+var $db database = #[['object, [$page_bin_index]], ['help, [$page_bin_index]], ['display, [$page_bin_index]], ['describe, [$page_bin_index]], ['who, [$page_bin_index]], ['read, [$note]], ['method, [$page_bin_index]], ['submit_new, [$page_set]]];
 var $dmi_data descriptions = #[];
 var $root created_on = 858198912;
 var $root flags = ['variables, 'methods, 'code, 'core];

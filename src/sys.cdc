@@ -15,7 +15,7 @@ var $sys backup = #[['interval, 3600], ['last, 0], ['next, 0]];
 var $sys bindings = #[['atomic, $sys], ['create, $sys], ['backup, $sys], ['shutdown, $sys], ['set_heartbeat, $sys], ['cancel, $scheduler], ['task_info, $scheduler], ['execute, $sys], ['bind_function, $sys], ['unbind_function, $sys], ['bind_port, $daemon], ['unbind_port, $daemon], ['open_connection, $connection], ['reassign_connection, $daemon], ['fopen, $file], ['fstat, $file], ['fchmod, $file], ['fmkdir, $file], ['frmdir, $file], ['files, $file], ['fremove, $file], ['frename, $file], ['fclose, $file], ['fseek, $file], ['feof, $file], ['fwrite, $file], ['fread, $file], ['fflush, $file], ['chparents, $root], ['destroy, $root], ['dblog, $sys], ['add_var, $root], ['del_var, $root], ['variables, $root], ['list_method, $root], ['add_method, $root], ['del_method, $root], ['method_bytecode, $root], ['methods, $root], ['rename_method, $root], ['set_method_access, $root], ['set_method_flags, $root], ['data, $root], ['del_objname, $root], ['set_objname, $root], ['suspend, $scheduler], ['resume, $scheduler], ['set_user, $user], ['config, $sys], ['cache_info, $sys]];
 var $sys config_set = ['new_user_class, 'server_name, 'server_title, 'daemons];
 var $sys configured = #[];
-var $sys core_version = "3.0.1999-08-28";
+var $sys core_version = "3.1";
 var $sys deny_hosts = [];
 var $sys deny_users = [];
 var $sys loggers = [$daemon, $user, $connection, $dns, $guest];
@@ -30,7 +30,7 @@ var $sys writable_core = 0;
 private method ._logstr() {
     arg str;
     
-    dblog((("[" + ($time.format("%d %h %y %H:%M"))) + "] ") + str);
+    dblog((("[" + ($time.format("%d %b %y %H:%M"))) + "] ") + str);
 };
 
 private method ._loop_for_core() {
@@ -95,6 +95,18 @@ driver method .backup_done() {
         pause();
         .execute("backup", []);
     }
+};
+
+public method .broadcast() {
+    arg mesg;
+    var s;
+    
+    // do better perms for this later; intended as a 'panic' type
+    // message, generally for daemon process type stuff
+    if (caller() != $http_interface)
+        throw(~perm, "Sorry.");
+    mesg = (("[" + caller()) + "] ") + mesg;
+    return $channel_ui._broadcast('System, mesg);
 };
 
 public method .cache_info() {
@@ -284,7 +296,7 @@ public method .configure_core() {
             }
         }
         s.tell(["", "You can set this at any time, with the command:"]);
-        s.tell("  @set $motd:startup-objects=OBJECTS...");
+        s.tell("  @set $sys:startup-objects=OBJECTS...");
     }
     
     // Other things to add: HTTP Virtual Hosting info,
@@ -394,8 +406,8 @@ public method .do_backup() {
     (> .perms(sender(), 'system) <);
     if (dict_contains(backup, 'started)) {
         .log("BACKUP CONFLICT");
-        line = "BACKUP CONFLICT at " + ($time.format("%r"));
-        line += ", Current backup started at " + ($time.format("%r", backup['started]));
+        line = "BACKUP CONFLICT at " + ($time.format("%I:%M:%S %p"));
+        line += ", Current backup started at " + ($time.format("%I:%M:%S %p", backup['started]));
         $channel_ui._broadcast('System, line);
         return;
     }
@@ -410,7 +422,7 @@ public method .do_backup() {
     catch any {
         name = who.namef('ref);
         .log(("BACKUP (" + name) + ") ");
-        line = (("Backup started at " + ($time.format("%r"))) + " by ") + name;
+        line = (("Backup started at " + ($time.format("%I:%M:%S %p"))) + " by ") + name;
         $channel_ui._broadcast('System, line);
     }
     

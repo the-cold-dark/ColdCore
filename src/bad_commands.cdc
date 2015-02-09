@@ -2,11 +2,11 @@
 new object $bad_commands: $user_interfaces;
 
 var $bad_commands non_supported_cmds = #[["quit", "@quit"], ["WHO", "@who"], ["@create", "@new"], ["help", "@help"], ["news", "@news"], ["page", "@page"], ["@gender", "@set gender"], ["uptime", "@status"], ["@alias", "@add-command-alias` or `@add-name-alias"], ["@check", "@monitor"], ["@paranoid", "@monitor"], ["@version", "@status"], ["@lock", "@set lock"], ["@unlock", "@set lock"], ["+com", ["See: `@help Channels`"]], ["tell", "@page"]];
+var $command_cache commands = 0;
 var $command_cache modules = [];
+var $command_cache shortcuts = 0;
 var $has_commands local = \
   #[["@create", [["@create", "*", "@create <any>", 'old_command_cmd, #[[1, ['any, []]]]]]],\
-  ["help",\
-    [["help", "*", "help <any>", 'old_command_cmd, #[[1, ['any, []]]]]]],\
   ["page",\
     [["page", "*", "page <any>", 'old_command_cmd, #[[1, ['any, []]]]]]],\
   ["who",\
@@ -25,10 +25,6 @@ var $has_commands local = \
     [["@check|@paranoid", "*", "@check|@paranoid <any>", 'old_command_cmd, #[[1, ['any, []]]]]]],\
   ["@version",\
     [["@version", "*", "@version <any>", 'old_command_cmd, #[[1, ['any, []]]]]]],\
-  ["@lock",\
-    [["@lock", "*", "@lock <any>", 'old_command_cmd, #[[1, ['any, []]]]]]],\
-  ["@unlock",\
-    [["@unlock", "*", "@unlock <any>", 'old_command_cmd, #[[1, ['any, []]]]]]],\
   ["+com",\
     [["+com", "*", "+com <any>", 'old_command_cmd, #[[1, ['any, []]]]]]],\
   ["tell",\

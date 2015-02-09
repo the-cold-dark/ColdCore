@@ -12,14 +12,14 @@ var $has_commands shortcuts = #[];
 var $has_name name = ['uniq, "System Trash Can", "the System Trash Can"];
 var $located location = $void;
 var $located obvious = 1;
-var $location contents = [$wearable_frob];
+var $location contents = [];
 var $root created_on = 830126811;
 var $root flags = ['variables, 'methods, 'code, 'core];
 var $root inited = 1;
 var $root managed = [$trash];
 var $root manager = $trash;
 var $thing gender = $gender_neuter;
-var $trash items = #[[$wearable_frob, 888456716]];
+var $trash items = #[];
 
 public method .del_sender_from_contents() {
     pass();
@@ -30,7 +30,7 @@ public method .did_arrive() {
     arg mover, place;
     var msg;
     
-    (> pass(place) <);
+    (> pass(mover, place) <);
     (| (items = items.add(sender(), time())) |);
 };
 

@@ -10,7 +10,7 @@ var $root manager = $carry_lock_frob;
 public method .lock_name() {
     arg value, @type;
     
-    return "owner:" + ((value[1]).name());
+    return "carry:" + ((value[1]).name());
 };
 
 public method .new_lock() {

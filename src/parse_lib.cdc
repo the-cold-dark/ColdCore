@@ -33,12 +33,12 @@ public method ._range() {
     if (str.is_numeric()) {
         return toint(str);
     } else {
-        switch (str[1]) {
-            case "$":
+        switch (str) {
+            case "$", "last", "end":
                 return 'end;
-            case ".":
+            case ".", "here":
                 return 'current;
-            case "^":
+            case "^", "start":
                 return 'start;
             default:
                 throw(~range, "Invalid range reference.");
@@ -225,7 +225,7 @@ public method .opt() {
             if (!a)
                 throw(~stop, ("Missing option flag following '" + (o ? "+" : "-")) + "'");
             if ((i = "=" in a)) {
-                if (i == strlen(a)) {
+                if ((i == strlen(a)) && (listlen(line) > x)) {
                     v = line[++x];
                     a = substr(a, 1, strlen(a) - 1).trim();
                 } else {
@@ -291,7 +291,7 @@ public method .possessive_reference() {
     
     if ((rx = regexp(str, "^my$|^my +(.+)?"))) {
         return ["me", (| rx[1] |) || ""];
-    } else if ((rx = regexp(str, "^([^ ]+s'|[^ ]+'s) *(.+)?"))) {
+    } else if ((rx = regexp(str, "^([^ ]+'s|[^ ]+s') *(.+)?"))) {
         if (listlen(rx) == 1)
             return 0;
         return [substr(rx[1], 1, strlen(rx[1]) - 2), rx[2]];

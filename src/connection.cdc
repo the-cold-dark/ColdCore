@@ -333,6 +333,7 @@ public method .write() {
     arg what, @how;
     var elem, sep;
     
+    (> .perms(sender()) <);
     sep = ('non_terminated in how) ? `[] : `[13, 10];
     switch (type(what)) {
         case 'string:

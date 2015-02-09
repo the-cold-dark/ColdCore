@@ -303,7 +303,7 @@ public method .match_environment() {
     
     // special case ordinal references
     if ((match = $parse_lib.ordinal_reference(str)))
-        return env.match_nth(@match);
+        return (> env.match_nth(@match) <);
     if ((match = $parse_lib.possessive_reference(str))) {
         if ((match[1]) == "me")
             obj = this();

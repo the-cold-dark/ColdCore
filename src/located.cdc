@@ -106,8 +106,15 @@ public method .move_to(): nooverride  {
         return;
     if (!(place.has_ancestor($location)))
         throw(~type, (place.namef('ref)) + " is not a location.");
-    if (place == this())
-        throw(~move, "You cannot move something into itself.");
+    old = place;
+    old = place;
+    while (1) {
+        if (old == this())
+            throw(~move, "You cannot move something into itself.");
+        old = (| old.location() |);
+        if (!old)
+            break;
+    }
     if (!valid(location))
         location = $nowhere;
     mover = sender();

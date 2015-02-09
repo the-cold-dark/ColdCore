@@ -1,7 +1,9 @@
 
 new object $mail_ui: $mail_list, $user_interfaces;
 
+var $command_cache commands = 0;
 var $command_cache modules = [];
+var $command_cache shortcuts = 0;
 var $has_commands local = \
   #[["@sub?scribed", [["@sub?scribed", "*", "@sub?scribed <any>", 'subscribe_cmd, #[[1, ['any, []]]]]]],\
   ["@unsub?scribed",\
@@ -60,7 +62,7 @@ protected method .mail_lists_cmd() {
 
 protected method .mail_on_cmd() {
     arg cmdstr, cmd, str;
-    var args, lmail, mail, rng, start, end, line, list, len, out, m, rows, o, from, subj;
+    var args, lmail, mail, rng, start, end, line, list, len, out, m, rows, o, from, subj, now_read;
     
     (> .perms(caller(), 'command) <);
     if ((args = match_template(str, "* on *"))) {
@@ -75,7 +77,7 @@ protected method .mail_on_cmd() {
     if (!list) {
         list = current['list];
     } else {
-        catch ~listnf, ~perm, ~ambig {
+        catch ~listnf, ~perm, ~ambig, ~objnf {
             list = (> $mail_lib.match_mail_recipient(list) <);
             (> .new_list(list) <);
         } with {
@@ -92,8 +94,25 @@ protected method .mail_on_cmd() {
         // minus two for the head and tail
         rows = (.get_rows()) - 2;
         if (end > rows) {
-            start = end - rows;
-            mail = sublist(mail, start);
+            if (0 == (| ((.subscribed())[list])[2] |)) {
+                now_read = 1;
+            } else {
+                now_read = 1;
+                for m in (mail) {
+                    if (m == (| ((.subscribed())[list])[2] |))
+                        break;
+                    else
+                        now_read++;
+                }
+            }
+            if ((now_read + rows) > end)
+                start = end - rows;
+            else if (now_read > (rows / 2))
+                start = now_read - (rows / 2);
+            else
+                start = 1;
+            end = (start + rows) - 1;
+            mail = sublist(mail, start, rows);
         } else {
             start = 1;
         }

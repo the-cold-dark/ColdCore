@@ -175,6 +175,12 @@ public method .gen_random() {
     return [[random(high - low) + low], vars];
 };
 
+public method .gen_serverhost() {
+    arg vars, flags, args;
+    
+    return [[$sys.server_info('server_hostname)], vars];
+};
+
 public method .gen_servername() {
     arg vars, flags, args;
     

@@ -18,8 +18,6 @@ var $has_commands local = \
     [["@add-c?ommand|@ac", "*", "@add-c?ommand|@ac <any>", 'add_command_cmd, #[[1, ['any, []]]]]]],\
   ["@del-c?ommand|@dc",\
     [["@del-c?ommand|@dc", "*", "@del-c?ommand|@dc <any>", 'del_command_cmd, #[[1, ['any, []]]]]]],\
-  ["@join",\
-    [["@join", "*", "@join <any>", 'join_cmd, #[[1, ['any, []]]]]]],\
   ["@chpar?ents",\
     [["@chpar?ents", "*", "@chpar?ents <any>", 'chparents_cmd, #[[1, ['any, []]]]]]],\
   ["@add-s?hortcut|@as",\
@@ -190,7 +188,7 @@ protected method ._edit_method_callback() {
     (> .perms(caller(), $editor_reference) <);
     [object, method] = client_data;
     sender = this();
-    code += [(("// $#Edited: " + ($time.format("%d %h %y %H:%M"))) + " ") + sender];
+    code += [(("// $#Edited: " + ($time.format("%d %b %y %H:%M"))) + " ") + sender];
     errors = (> object.add_method(code, method) <);
     if (errors)
         return ['failure, errors];
@@ -404,7 +402,7 @@ protected method ._move_method() {
     flags = (> fobj.method_flags(fname) <);
     access = (> fobj.method_access(fname) <);
     if (comment) {
-        line = (((((((("// $#" + (remove ? "Moved" : "Copied")) + " ") + ($time.format("%d %h %y %H:%M"))) + " from ") + fobj) + ".") + fname) + "() by ") + this();
+        line = (((((((("// $#" + (remove ? "Moved" : "Copied")) + " ") + ($time.format("%d %b %y %H:%M"))) + " from ") + fobj) + ".") + fname) + "() by ") + this();
         if (type(comment) == 'string)
             line += ": " + comment;
         code += [line];
@@ -1416,8 +1414,7 @@ public method .evaluate() {
     var start, end, time, ticks, mtime, times1, times2, method, errs, trace, result, is_error;
     
     mode = mode ? (mode[1]) : 0;
-    if (sender() != $eval_parser)
-        (> .perms(caller(), $programmer) <);
+    (> .perms(caller(), $programmer) <);
     method = tosym("tmp_eval_" + time());
     if ((errs = (> definer.add_method([str], method, 'evalonly) <))) {
         if (mode)
@@ -1598,7 +1595,10 @@ protected method .help_write_cmd() {
         return;
     if (ignore)
         return "Done ignoring.";
-    node.set_body(text);
+    catch any
+        node.set_body(text);
+    with
+        return "Error storing text: " + ((traceback()[1])[2]);
     return ("New help text set for " + (node.namef('ref))) + ".";
 };
 
@@ -1610,38 +1610,6 @@ protected method .id_cmd() {
     if (type(obj) == 'frob)
         return ["The target object was a frob."];
     .tell((((((((obj.namef('xref)) + " ") + ($object_lib.see_perms(obj))) + " ") + toliteral(obj.parents())) + " ") + tostr(obj.size())) + " bytes");
-};
-
-protected method .join_cmd() {
-    arg cmdstr, cmd, who;
-    var loc, p, user;
-    
-    (> .perms(caller(), 'command) <);
-    if (!who) {
-        .tell("Specify a user to join.");
-        return;
-    }
-    catch any {
-        if ((who[1]) in "$#") {
-            user = (> $object_lib.to_dbref(who) <);
-            if (!(user.has_ancestor($thing)))
-                return "You can only join things in the VR.";
-        } else {
-            user = (> $user_db.search(who) <);
-        }
-    } with {
-        .tell((traceback()[1])[2]);
-        return;
-    }
-    loc = user.location();
-    if (loc == (.location())) {
-        .tell(("You are already with " + (user.name())) + "!");
-        return;
-    }
-    if (!(.teleport(loc)))
-        .tell("Sorry.");
-    else
-        .tell(("You join " + (user.name())) + ".");
 };
 
 protected method .list_cmd() {
@@ -1730,7 +1698,7 @@ protected method .local_edit_cmd() {
         edited = 1;
     }
     if (edited) {
-        edited = (("// $#Edited: " + ($time.format("%d %h %y %H:%M"))) + " ") + this();
+        edited = (("// $#Edited: " + ($time.format("%d %b %y %H:%M"))) + " ") + this();
         if (i && (((args[3])[i])[4]))
             edited += ": " + (((args[3])[i])[4]);
     }
@@ -1739,34 +1707,6 @@ protected method .local_edit_cmd() {
     with
         return (traceback()[1])[2];
     return .ptell(([(((((("#$# edit name: " + def) + ".") + meth) + " upload: @program ") + def) + ".") + meth] + (code.prefix("    "))) + ["."], #[['nomod, 1]]);
-};
-
-protected method .managed_cmd() {
-    arg cmdstr, cmd, args;
-    var manager, managed, obj, out, len;
-    
-    (> .perms(caller(), 'command) <);
-    if (!args)
-        args = ".";
-    manager = (| .match_environment(args) |);
-    if (!manager) {
-        manager = (| $user_db.search(args) |);
-        if (!manager)
-            return ("Unable to find \"" + args) + "\".";
-    }
-    managed = manager.managed();
-    if (!managed)
-        return (manager.namef('ref)) + " does not manage any objects.";
-    out = [(manager.namef('ref)) + " manages:"];
-    len = (.linelen()) / 2;
-    for obj in (managed) {
-        if (!valid(obj)) {
-            .tell(("  ** invalid object (" + obj) + ") **");
-            continue;
-        }
-        out += [(("  " + ((obj.namef('xref)).pad(len))) + " ") + ($object_lib.see_perms(obj, ["", ""]))];
-    }
-    return out + ["---"];
 };
 
 protected method .move_cmd() {
@@ -1784,7 +1724,7 @@ protected method .move_cmd() {
         args = delete(args, 1);
     if (!args)
         throw(~stop, ("You must " + how) + " to something.");
-    catch ~objnf
+    catch ~objnf, ~namenf, ~match
         dest = $parse_lib.ref(join(args));
     with
         throw(~stop, (traceback()[1])[2]);
@@ -1792,7 +1732,7 @@ protected method .move_cmd() {
     // drop back to $builder.move_cmd if it is just an object
     if ((src[1]) == 'object) {
         if (how == 'copy)
-            throw(~strop, "You cannot copy objects!");
+            throw(~stop, "You cannot copy objects!");
         return (> pass(cmdstr, cmd, [src, dest, opts]) <);
     }
     
@@ -1863,12 +1803,15 @@ protected method .new_editor_session() {
             data = $data_lib.unparse_indent(data);
             (> .invoke_editor(this(), '_edit_variable_callback, data, [ref[2], ref[4]]) <);
         case 'method:
-            def = (| (ref[2]).find_method(tosym(ref[4])) |);
+            name = (| tosym(ref[4]) |);
+            if (!name)
+                return [("Invalid method name ." + (ref[4])) + "()"];
+            def = (| (ref[2]).find_method(name) |);
             if (!def) {
                 def = ref[3];
                 code = [];
             } else {
-                code = def.list_method(tosym(ref[4]));
+                code = def.list_method(name);
             }
             (> .invoke_editor(this(), '_edit_method_callback, code, [def, tosym(ref[4])]) <);
         default:
@@ -2068,7 +2011,7 @@ protected method .program_cmd() {
         ed = 1;
     }
     if (ed) {
-        ed = (("// $#Edited: " + ($time.format("%d %h %y %H:%M"))) + " ") + this();
+        ed = (("// $#Edited: " + ($time.format("%d %b %y %H:%M"))) + " ") + this();
         if (i && ((ops[i])[4]))
             ed += ": " + ((ops[i])[4]);
     }

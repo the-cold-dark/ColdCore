@@ -8,10 +8,10 @@ var $described prose = <$ctext_frob, [["A cozy atmosphere pervades this room, a 
 var $event_handler hooked = #[];
 var $event_handler hooks = #[];
 var $foundation msgs = #[["housekeeper", #[["general", <$ctext_frob, [["Dust bunnies rise from under the furniture to envelop ", <$generator, ["actor", [], [], 'gen_actor]>, "'s comatose form, leaving behind a small pile of musty lint."], #[]]>]]]];
-var $has_commands local = \
-  #[["zibble", [["zibble", "*", "zibble <any>", 'foo_cmd, #[[1, ['any, []]]]]]]];
+var $has_commands local = #[];
 var $has_name name = ['prop, "The Pit", "The Pit"];
-var $location contents = [$robot];
+var $location contents = [];
+var $place darkness = 0;
 var $place entrances = [];
 var $place exits = [];
 var $place realm = $realm_of_creation;

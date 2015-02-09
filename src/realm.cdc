@@ -9,13 +9,13 @@ var $realm links = #[];
 var $realm local = [];
 var $root created_on = 796268969;
 var $root credit = ["Miroslav Silovic <silovic@zesoi.fer.hr>"];
-var $root defined_settings = #[["weather-time", #[['get, ['get_realm_setting]], ['parse, ['parse_weather_time]], ['format, ['format_weather_time]]]]];
+var $root defined_settings = #[["weather-time", #[['get, ['get_realm_setting]], ['parse, ['parse_weather_time]], ['format, ['format_weather_time]]]], ["housekeeper-delay", #[['parse, ['parse_setting_delay]], ['format, ['format_setting_delay]]]], ["housekeeper-notify", #[['parse, ['is_boolean]], ['format, ['format_boolean]]]]];
 var $root flags = ['methods, 'code, 'variables, 'core, 'fertile];
 var $root help_node = $help_places_realms;
 var $root inited = 1;
 var $root managed = [$realm];
 var $root manager = $realm;
-var $root settings = #[["weather-time", [$weather_nice, "spring", $climate_creation, 0, $world_time, 0]], ["propagate", 0], ["map-position", 0]];
+var $root settings = #[["weather-time", [$weather_nice, "spring", $climate_creation, 0, $world_time, 0]], ["propagate", 0], ["housekeeper-delay", 300], ["housekeeper-notify", 1], ["map-position", 0]];
 var $root trusted_by = [$world];
 
 public method ._check_links() {
@@ -81,7 +81,7 @@ public method .advance_weather() {
     (caller() == $world) || (> .perms(sender()) <);
     d = .get_setting("weather-time", $realm);
     if (ticked) {
-        d = d.replace(2, $world_time.current_season());
+        d = d.replace(2, (d[5]).current_season());
         new = (d[3]).advance(d[1], d[2], (d[4]) || []);
         if (new != (d[1])) {
             d = d.replace(1, new);
@@ -117,6 +117,12 @@ public method .ctext_variables() {
     ret = ret.add('daytime, timeobj.daytime(timezone, (| climate.daylength(season) |) || 0));
     ret = ret.add('evaluator, $realm_base_eval);
     return ret;
+};
+
+protected method .format_setting_delay() {
+    arg value;
+    
+    return $time.to_english(value);
 };
 
 public method .format_weather_time() {
@@ -176,6 +182,12 @@ public method .new() {
     local = local.setadd(sender());
     .cleanup_local();
     return this();
+};
+
+protected method .parse_setting_delay() {
+    arg value, @args;
+    
+    return (> $time.from_english(value) <);
 };
 
 public method .parse_weather_time() {

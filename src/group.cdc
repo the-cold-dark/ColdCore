@@ -57,6 +57,16 @@ public method .is_group() {
     return 1;
 };
 
+public method .name() {
+    arg @args;
+    var n, x;
+    
+    n = tostr(.objname());
+    if ((x = stridx(n, "_group", -1)) > 1)
+        return substr(n, 1, x - 1);
+    return n;
+};
+
 public method .parse_group() {
     arg value, @args;
     var action, list, item, out;

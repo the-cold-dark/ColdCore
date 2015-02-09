@@ -31,7 +31,11 @@ var $has_commands local = \
   ["@mv|@move",\
     [["@mv|@move", "*", "@mv|@move <objref:+c?omment>", 'move_cmd, #[[1, ['objref_opt, ["c?omment"]]]]]]],\
   ["@action-request|@ar",\
-    [["@action-request|@ar", "*", "@action-request|@ar <any>", 'action_request_cmd, #[[1, ['any, []]]]]]]];
+    [["@action-request|@ar", "*", "@action-request|@ar <any>", 'action_request_cmd, #[[1, ['any, []]]]]]],\
+  ["@join",\
+    [["@join", "*", "@join <any>", 'join_cmd, #[[1, ['any, []]]]]]],\
+  ["@chown",\
+    [["@chown", "*", "@chown <any>", 'chown_cmd, #[[1, ['any, []]]]]]]];
 var $has_name name = ['prop, "Generic Builder", "Generic Builder"];
 var $located location = $body_cave;
 var $located obvious = 1;
@@ -148,27 +152,34 @@ protected method ._ar__fix() {
 };
 
 protected method ._ar__get_group() {
-    arg args, opts;
+    arg args, opts, @notall;
     var group, groups, s, menu;
     
     groups = $argroup.children();
     if (opts) {
-        if ("a?ll" in (opts.slice(1)))
+        if (("a?ll" in (opts.slice(1))) && (!notall))
             group = 'All;
         else if (!(group = (| groups.match_object((opts[1])[2]) |)))
             throw(~stop, ("Invalid AR Group '" + ((opts[1])[2])) + "'");
     } else {
-        while (1) {
+        if (notall)
+            menu = [];
+        else
             menu = ["0=>ALL GROUPS"];
-            for group in [1 .. listlen(groups)]
-                menu += [(group + "=>") + ((groups[group]).name())];
-            menu += ["X=>Exit"];
-            s = .do_menu("AR Groups", "Select AR Group", @menu);
+        for group in [1 .. listlen(groups)]
+            menu += [(group + "=>") + ((groups[group]).name())];
+        group = 0;
+        menu += ["X=>Exit"];
+        while (1) {
+            s = (> .do_menu("AR Groups", "Select AR Group", @menu) <);
             if ((!s) || (s == "X"))
                 return 0;
             if (s.is_numeric()) {
-                if ((!(group = (| groups[toint(s)] |))) && (s == "0"))
-                    group = 'All;
+                if ((!(group = (| groups[toint(s)] |))) && (s == "0")) {
+                    if (!notall)
+                        group = 'All;
+                    group = 0;
+                }
             }
             if (!group)
                 .tell(["**", ("** Sorry, '" + s) + "' is not a valid group."]);
@@ -222,7 +233,11 @@ protected method ._ar__ilist() {
             .tell("** Your Un-Resolved Action Requests:");
             list = ._ar__listgrp(requests, (.linelen()) - 32, 1);
         } else {
-            list = ._ar__list([], []);
+            list = 0;
+            catch ~abort
+                list = (> ._ar__list([], []) <);
+            if (list == #[])
+                continue;
             if ((!list) || (list == "Goodbye."))
                 return;
         }
@@ -275,26 +290,29 @@ protected method ._ar__interactive() {
 
 protected method ._ar__iview() {
     arg pr;
-    var str, msg;
+    var cmd, msg, args, opts;
     
-    msg = "[RET] Return, [N]ext, [P]rev, [C]laim, [F]ix, [D]ismiss, [A]ppend";
+    msg = "[Return] [N]ext [P]rev [C]laim [F]ix [D]ismiss [A]ppend [M]ove";
     while (1) {
         .tell(pr.format());
-        str = (> .prompt(msg) <);
-        if ((!str) || match_template(str, "x|ex?it"))
+        [args, opts] = (> $parse_lib.getopt(.prompt(msg)) <);
+        if ((!args) || match_template(args[1], "x|ex?it"))
             return 0;
-        if (match_template(str, "n?ext"))
+        [cmd, @args] = args;
+        if (match_template(cmd, "n?ext"))
             return 'next;
-        if (match_template(str, "p?revious"))
+        if (match_template(cmd, "p?revious"))
             return 'prev;
-        if (match_template(str, "c?laim"))
-            .tell(._ar__claim([], [], pr));
-        else if (match_template(str, "f?ix|r?esolve"))
-            .tell(._ar__fix([], [], pr));
-        else if (match_template(str, "d?ismiss"))
-            .tell(._ar__dismiss([], [], pr));
-        else if (match_template(str, "a?ppend|cmt|com?ment"))
-            .tell(._ar__comment([], [], pr));
+        if (match_template(cmd, "c?laim"))
+            .tell(._ar__claim(args, opts, pr));
+        else if (match_template(cmd, "f?ix|r?esolve"))
+            .tell(._ar__fix(args, opts, pr));
+        else if (match_template(cmd, "d?ismiss"))
+            .tell(._ar__dismiss(args, opts, pr));
+        else if (match_template(cmd, "a?ppend|cmt|com?ment"))
+            .tell(._ar__comment(args, opts, pr));
+        else if (match_template(cmd, "m?ove"))
+            .tell(._ar__move(args, opts, pr));
     }
 };
 
@@ -386,6 +404,23 @@ private method ._ar__mailmsg() {
         with
             return (traceback()[1])[2];
         return "** Mail sent.";
+    }
+};
+
+protected method ._ar__move() {
+    arg args, opts, request;
+    var group;
+    
+    while (1) {
+        .tell("** Changing AR Group for AR #" + (request.id()));
+        catch ~abort
+            group = (> ._ar__get_group(args, opts, 'notall) <);
+        if (!group)
+            return "** Not changing group.";
+        if (group == (request.group()))
+            return (("** #" + (request.id())) + " is already in ") + (request.group());
+        request.change_group(group);
+        return ((("** " + (request.id())) + " is now in the ") + (group.name())) + " group";
     }
 };
 
@@ -1065,6 +1100,38 @@ protected method .dig_cmd() {
         dnew = dnew.or((path && ((path.created_on()) > (time() - 30))) ? 2 : 0);
         return .build_cleanup([dest, dnew.and(1)], [path, dnew.and(2)]);
     }
+};
+
+protected method .join_cmd() {
+    arg cmdstr, cmd, who;
+    var loc, p, user;
+    
+    (> .perms(caller(), 'command) <);
+    if (!who) {
+        .tell("Specify a user to join.");
+        return;
+    }
+    catch any {
+        if ((who[1]) in "$#") {
+            user = (> $object_lib.to_dbref(who) <);
+            if (!(user.has_ancestor($thing)))
+                return "You can only join things in the VR.";
+        } else {
+            user = (> $user_db.search(who) <);
+        }
+    } with {
+        .tell((traceback()[1])[2]);
+        return;
+    }
+    loc = user.location();
+    if (loc == (.location())) {
+        .tell(("You are already with " + (user.name())) + "!");
+        return;
+    }
+    if (!(.teleport(loc)))
+        .tell("Sorry.");
+    else
+        .tell(("You join " + (user.name())) + ".");
 };
 
 protected method .move_cmd() {

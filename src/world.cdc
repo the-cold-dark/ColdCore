@@ -13,7 +13,7 @@ var $root manager = $world;
 var $root settings = #[["starting-place", $the_pit], ["weather-rate", 5000], ["cleanup-disconnected-users", 1]];
 var $root trusted = [$realm];
 var $world heartbeat_rate = 600;
-var $world last_weather_change = 935859494;
+var $world last_weather_change = 1011936170;
 var $world realms = [$realm_of_creation];
 var $world weather_rate = 5400;
 

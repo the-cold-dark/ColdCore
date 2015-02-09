@@ -24,7 +24,7 @@ public method .new_lock() {
 public method .try() {
     arg lock, obj;
     
-    return ((lock[1]).has_ancestor(obj)) || ($sys.is_system(obj));
+    return (obj.has_ancestor(lock[1])) || ($sys.is_system(obj));
 };
 
 

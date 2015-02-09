@@ -1,9 +1,13 @@
 
 new object $help_ui: $user_interfaces;
 
+var $command_cache commands = 0;
 var $command_cache modules = [];
+var $command_cache shortcuts = 0;
 var $has_commands local = \
-  #[["@help", [["@help", "*", "@help <any>", 'help_cmd, #[[1, ['any, []]]]]]]];
+  #[["@help", [["@help", "*", "@help <any>", 'help_cmd, #[[1, ['any, []]]]]]],\
+  ["help",\
+    [["help", "*", "help <any>", 'help_cmd, #[[1, ['any, []]]]]]]];
 var $has_commands shortcuts = #[["?*", ['help_cmd, ["?", 1]]]];
 var $help_ui current = 1;
 var $help_ui history = [$help_coldcore];
@@ -425,7 +429,7 @@ protected method .tell_help_node() {
     .ptell(node.body(), #[['type, 'help], ['ctype, 'ctext]]);
     if (node.group()) {
         line = (start = (end = ""));
-        sibs = filter n in (((node.parents())[1]).children()) where (!(n.nolist()));
+        sibs = filter n in (((node.parents())[1]).children()) where (!(| n.nolist() |));
         flen = (((strlen((sibs.mmap('small_name)).join()) + (listlen(sibs) * 3)) + 3) + strlen(end)) + strlen(start);
         while (flen > len) {
             if ((listlen(sibs) / 2) >= (node in sibs)) {

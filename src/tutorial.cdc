@@ -1,9 +1,7 @@
 
 new object $tutorial: $place;
 
-var $command_cache commands = 0;
 var $command_cache modules = [];
-var $command_cache shortcuts = 0;
 var $described prose = <$ctext_frob, [["This is the tutorial room. It's not part of any tutorial, and you probably shouldn't be here. Type", <$format, ["p", [], [], 'do_p]>, <$format, ["dfn", [], ["exit"], 'do_dfn]>, <$format, ["p", [], [], 'do_p]>, "now to get back to ", <$generator, ["servname", [], [], 'gen_servname]>, "."], #[]]>;
 var $dmi_data descriptions = #[];
 var $event_handler hooks = #[];
@@ -67,11 +65,11 @@ public method .description() {
     
     // back/more
     if ((exit = .get_setting("back-topic", $tutorial)))
-        lines += [$cml_lib.format_obj_tag('look, (<$exit_frob, #[['source, this()], ['dest, exit]]>), "Back: " + (exit.name()), 'exit)];
+        lines += [$cml_lib.format_obj_tag('look, exit, "Back: " + (exit.name()))];
     if ((exit = .get_setting("more-topic", $tutorial))) {
         if (lines)
             lines += [" || "];
-        lines += [$cml_lib.format_obj_tag('look, (<$exit_frob, #[['source, this()], ['dest, exit]]>), "More: " + (exit.name()), 'exit)];
+        lines += [$cml_lib.format_obj_tag('look, exit, "More: " + (exit.name()))];
     }
     
     // reset
@@ -82,11 +80,11 @@ public method .description() {
     
     // prev/next
     if ((exit = .get_setting("prev-topic", $tutorial)))
-        lines += [$cml_lib.format_obj_tag('look, (<$exit_frob, #[['source, this()], ['dest, exit]]>), "Previous: " + (exit.name()), 'exit)];
+        lines += [$cml_lib.format_obj_tag('look, exit, "Previous: " + (exit.name()))];
     if ((exit = .get_setting("next-topic", $tutorial))) {
         if (lines)
             lines += [" || "];
-        lines += [$cml_lib.format_obj_tag('look, (<$exit_frob, #[['source, this()], ['dest, exit]]>), "Next: " + (exit.name()), 'exit)];
+        lines += [$cml_lib.format_obj_tag('look, exit, "Next: " + (exit.name()))];
     }
     if (lines)
         return out + [$ctext_frob.new_with(["<< ", @lines, " >>"])];

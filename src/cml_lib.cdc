@@ -134,6 +134,12 @@ public method .format_dfn_tag() {
     return (<$format, ["dfn", [], args, 'do_dfn]>);
 };
 
+public method .format_font_tag() {
+    arg text, color;
+    
+    return (<$format, ["font", [["color", color]], [text], 'do_font]>);
+};
+
 public method .format_hr_tag() {
     return hr;
 };

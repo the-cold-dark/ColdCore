@@ -124,7 +124,7 @@ public method .edit_cmd() {
         if ((i = "t?ype" in ((args[2]).slice(1))))
             type = ((args[2])[i])[4];
         type ?= "any";
-        catch ~objnf, ~namenf, ~ambig
+        catch ~objnf, ~namenf, ~ambig, ~symbol
             args = replace(args, 1, (> $parse_lib.ref((args[1]).join()) <));
         with
             return (traceback()[1])[2];

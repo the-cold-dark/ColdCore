@@ -43,6 +43,58 @@ public method .body() {
     return body;
 };
 
+public method .dump_to_disk() {
+    arg fh, curdir;
+    var child;
+    
+    (> .perms(sender(), @.parents()) <);
+    (| fh.close() |);
+    if (!(fh.is($file)))
+        throw(~arg, "First argument must be a $file");
+    curdir = .dump_to_disk__store(fh, curdir);
+    for child in (.children()) {
+        pause();
+        child.dump_to_disk(fh, curdir);
+    }
+};
+
+private method .dump_to_disk__store() {
+    arg fh, curdir;
+    var fname, stat, body, s, set, n, p, head, tail;
+    
+    body = .body();
+    if (!body)
+        return curdir;
+    fname = tostr(.objname());
+    fname = strsed(fname, "^help_", "");
+    if (((.children()).length()) > 0) {
+        curdir += "/" + fname;
+        if (!(| fh.fstat(curdir) |)) {
+            if (!(> fh.fmkdir(curdir) <))
+                throw(~failed, ("Cannot mkdir(" + curdir) + ")");
+        }
+        fname = "index";
+    }
+    
+    // write out the CML first...
+    stat = (> fh.open(((curdir + "/") + fname) + ".cml", ">") <);
+    set = "@set " + this();
+    for s in (["group", "holder", "index", "nolist"])
+        fh.fwrite((((set + ":") + s) + "=") + (.get_setting(s, $help_node)));
+    fh.fwrite("@hwrite " + this());
+    for s in ((.body()).uncompile()) {
+        fh.fwrite(s);
+        refresh();
+    }
+    fh.fwrite(".");
+    fh.fclose();
+    
+    // now write our HTML...
+    //  stat = (> fh.open(curdir + "/" + fname + ".html", ">") <);
+    // fh.close();
+    return curdir;
+};
+
 public method .edit_help() {
     var p;
     

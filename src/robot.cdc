@@ -8,7 +8,7 @@ var $command_cache shortcuts = 0;
 var $described prose = <$ctext_frob, [["A generic automated robot object."], #[['this, $robot]]]>;
 var $has_commands remote = #[["@reactions", [["@reactions", "*", "@reactions <this>", 'reactions_cmd, #[[1, ['this, []]]]]]], ["@del-r?eaction", [["@del-r?eaction", "* from|on *", "@del-r?eaction <number> from|on <this>", 'del_reaction_cmd, #[[1, ['number, []]], [3, ['this, []]]]]]], ["@add-r?eaction", [["@add-r?eaction", "* to * on *", "@add-r?eaction <any> to <any> on <this>", 'add_reaction_cmd, #[[1, ['any, []]], [3, ['any, []]], [5, ['this, []]]]]]], ["@deactivate-r?eaction|@dr", [["@deactivate-r?eaction|@dr", "* on *", "@deactivate-r?eaction|@dr <number> on <this>", 'deactivate_reaction_cmd, #[[1, ['number, []]], [3, ['this, []]]]]]], ["@activate-r?eaction|@ar", [["@activate-r?eaction|@ar", "* on *", "@activate-r?eaction|@ar <number> on <this>", 'activate_reaction_cmd, #[[1, ['number, []]], [3, ['this, []]]]]]]];
 var $has_name name = ['uniq, "Robot", "the Robot"];
-var $located location = $the_pit;
+var $located location = $nowhere;
 var $located obvious = 1;
 var $location contents = [];
 var $robot active = 0;
@@ -366,6 +366,10 @@ public method .event_notify() {
         return;
     if (event == 'social)
         .check_reactions(args[2], args[3], args[1]);
+};
+
+public method .idle_seconds() {
+    return 0;
 };
 
 public method .idle_time() {

@@ -58,7 +58,7 @@ public method .do_detail() {
     var det;
     
     det = flags.getkey("name");
-    return [((((((("<a href=\"" + (vars['base_url])) + "/bin/describe?target=") + ((vars['this]).objname())) + "&detail=") + ($http.encode(det))) + "\">") + det) + "</a></b>", vars];
+    return [((((((("<a href=\"" + (vars['base_url])) + "/bin/describe?target=") + ((vars['this]).objname())) + "&detail=") + ($http.encode(det))) + "\">") + det) + "</a>", vars];
 };
 
 public method .do_dl() {
@@ -172,7 +172,7 @@ public method .format() {
     str = (> (._eval_ctext(data, vars))[1] <);
     if ((strlen(str) < 2) || (substr(str, strlen(str) - 1) != "\n"))
         str += "\n";
-    return str_to_buf(str + "\n");
+    return str_to_buf(str + "<br>\n");
 };
 
 public method .init() {

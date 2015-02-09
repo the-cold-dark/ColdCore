@@ -13,6 +13,7 @@ var $has_commands shortcuts = #[];
 var $has_name name = ['uniq, "Body Cave", "the Body Cave"];
 var $location contents = [$reaper, $builder, $guest, $no_one, $programmer, $admin, $player, $storyteller, $user];
 var $physical visibility = -100;
+var $place darkness = 10;
 var $place entrances = [];
 var $place exits = [];
 var $place realm = $realm_of_creation;

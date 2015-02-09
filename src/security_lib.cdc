@@ -19,9 +19,23 @@ public method .bounce_to_auth() {
         return 0;
 };
 
+public method .check_password() {
+    arg object, passwd, @cinfo;
+    
+    (> .perms(caller(), $login_interface, $pop3_interface) <);
+    return object.check_password(passwd, @cinfo);
+};
+
+public method .check_pop3_password() {
+    arg maildrop, passwd;
+    
+    (> .perms(caller(), $pop3_interface) <);
+    return maildrop.check_password(passwd);
+};
+
 public method .check_userdb_with_optional() {
     arg interface;
-    var user, auth, req;
+    var user, auth;
     
     if (!(| (auth = interface.get_info('browser_auth)) |))
         return 0;

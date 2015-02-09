@@ -1,9 +1,7 @@
 
 new object $location: $physical, $command_cache;
 
-var $command_cache commands = 0;
 var $command_cache modules = [];
-var $command_cache shortcuts = 0;
 var $described prose = [];
 var $has_commands shortcuts = #[];
 var $has_name name = ['uniq, "Generic Container Object", "the Generic Container Object"];
@@ -107,8 +105,9 @@ public method .find_in_contents() {
     
     for obj in (.contents()) {
         if (obj.match_name(str))
-            return;
+            return obj;
     }
+    return 0;
 };
 
 root method .init_location() {

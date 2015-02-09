@@ -4,7 +4,9 @@ new object $user: $body, $mail_ui, $command_aliases, $bad_commands, $help_ui, $e
 var $channel_ui active_channels = #[];
 var $channel_ui channel_dict = #[];
 var $command_aliases command_aliases = [];
+var $command_cache commands = 0;
 var $command_cache modules = [];
+var $command_cache shortcuts = 0;
 var $described prose = [];
 var $has_commands local = \
   #[["@quit", [["@quit", "", "@quit", 'quit_cmd, #[]]]], ["i?nventory", [["i?nventory", "", "i?nventory", 'inventory_cmd, #[]]]], ["@audit", [["@audit", "*", "@audit <any>", 'audit_cmd, #[[1, ['any, []]]]]]],\
@@ -28,38 +30,18 @@ var $has_commands local = \
     [["@age", "*", "@age <object>", 'age_cmd, #[[1, ['object, []]]]]]],\
   ["@context",\
     [["@context", "", "@context", 'context_cmd, #[]]]], ["@rename", [["@rename", "*", "@rename <any>", 'rename_cmd, #[[1, ['any, []]]]]]],\
-  ["@add-writer|@aw",\
-    [["@add-writer|@aw", "*", "@add-writer|@aw <any>", 'add_writer_cmd, #[[1, ['any, []]]]]]],\
-  ["@del-writer|@dw",\
-    [["@del-writer|@dw", "*", "@del-writer|@dw <any>", 'del_writer_cmd, #[[1, ['any, []]]]]]],\
-  ["@manage?d",\
-    [["@manage?d", "*", "@manage?d <any>", 'managed_cmd, #[[1, ['any, []]]]]]],\
   ["@remember",\
     [["@remember", "* as *", "@remember <object> as <any>", 'remember_cmd, #[[1, ['object, []]], [3, ['any, []]]]]]],\
   ["@remembered",\
     [["@remembered", "*", "@remembered <any>", 'remembered_cmd, #[[1, ['any, []]]]]]],\
   ["discard",\
     [["discard", "*", "discard <object>", 'discard_cmd, #[[1, ['object, []]]]]]],\
-  ["@writes",\
-    [["@writes", "*", "@writes <object>", 'writes_cmd, #[[1, ['object, []]]]]]],\
-  ["@trusted?-by",\
-    [["@trusted?-by", "*", "@trusted?-by <object>", 'trusted_by_cmd, #[[1, ['object, []]]]]]],\
-  ["@del-trust?ee|@dt",\
-    [["@del-trust?ee|@dt", "*", "@del-trust?ee|@dt <object:>", 'del_trustee_cmd, #[[1, ['object_opt, []]]]]]],\
   ["@monitor",\
     [["@monitor", "*", "@monitor <any>", 'monitor_cmd, #[[1, ['any, []]]]]]],\
   ["@ex?amine",\
     [["@ex?amine", "*", "@ex?amine <object:+c?hop>", 'examine_cmd, #[[1, ['object_opt, ["c?hop"]]]]]]],\
   ["@map",\
-    [["@map", "", "@map", 'map_cmd, #[]]]], ["@finger|@ustat", [["@finger|@ustat", "*", "@finger|@ustat <user>", 'finger_cmd, #[[1, ['user, []]]]]]],\
-  ["@trusts|@trustee?s",\
-    [["@trusts|@trustee?s", "*", "@trusts|@trustee?s <object>", 'trusts_cmd, #[[1, ['object, []]]]]]],\
-  ["@writers",\
-    [["@writers", "*", "@writers <object>", 'writers_cmd, #[[1, ['object, []]]]]]],\
-  ["@manager",\
-    [["@manager", "*", "@manager <object>", 'manager_cmd, #[[1, ['object, []]]]]]],\
-  ["@desc?ribe|@prose",\
-    [["@desc?ribe|@prose", "*", "@desc?ribe|@prose <any>", 'description_cmd, #[[1, ['any, []]]]]]],\
+    [["@map", "", "@map", 'map_cmd, #[]]]], ["@desc?ribe|@prose", [["@desc?ribe|@prose", "*", "@desc?ribe|@prose <any>", 'description_cmd, #[[1, ['any, []]]]]]],\
   ["l?ook|exam?ine",\
     [["l?ook|exam?ine", "*", "l?ook|exam?ine <any>", 'look_cmd, #[[1, ['any, []]]]]]],\
   ["walk|go",\
@@ -99,9 +81,9 @@ var $has_commands local = \
   ["@away",\
     [["@away", "*", "@away <any>", 'away_cmd, #[[1, ['any, []]]]]]],\
   ["@back",\
-    [["@back", "", "@back", 'back_cmd, #[]]]], ["@add-trust?ee|@at", [["@add-trust?ee|@at", "*", "@add-trust?ee|@at <object:>", 'add_trustee_cmd, #[[1, ['object_opt, []]]]]]],\
-  ["@player-breakdown|@pb|@user-breakdown|@ub",\
-    [["@player-breakdown|@pb|@user-breakdown|@ub", "", "@player-breakdown|@pb|@user-breakdown|@ub", 'player_breakdown_cmd, #[]]]]];
+    [["@back", "", "@back", 'back_cmd, #[]]]], ["@finger", [["@finger", "*", "@finger <user>", 'finger_cmd, #[[1, ['user, []]]]]]],\
+  ["@rep?ort|@bug",\
+    [["@rep?ort|@bug", "", "@rep?ort|@bug", 'report_cmd, #[]]]], ["@traceback|@tb", [["@traceback|@tb", "*", "@traceback|@tb <any>", 'traceback_cmd, #[[1, ['any, []]]]]]]];
 var $has_commands shortcuts = #[["--*", ['remote_cmd, ["@page ", "", " with ", 1]]], ["-* *", ['remote_cmd, ["@page ", 1, " with ", 2]]], ["/*", ['null_cmd, ["null ", 1]]]];
 var $has_name name = ['prop, "Generic User Object", "Generic User Object"];
 var $located location = $body_cave;
@@ -217,6 +199,7 @@ public method ._list_objects() {
             if ((name.length()) > c1)
                 name = name.pad(c1);
             out += [line + name];
+            refresh();
         }
     }
     return out;
@@ -239,15 +222,14 @@ protected method ._tell() {
                     what = (((what.replace("&", "&amp;")).replace("<", "&lt;")).replace(">", "&gt;")) + "<br>";
                 else if (content_type == 'tkmoo)
                     what = (what.replace("}", "\}")).replace("{", "\{");
-    
-                //           if (content_type == 'wrapped) {
-                //              what = strsub(what, "\\", "\\\\");
-                //              what = str_to_buf(what.wrap_line(.linelen(), " ") + "\n");
-                //          }
             }
         case 'list:
-            for line in (what)
+            // a refresh here could allow text output to be corrupted,
+            // ohwell, its needed for HUGE lists of input
+            for line in (what) {
                 ._tell(line, @args);
+                refresh();
+            }
             return;
         case 'buffer:
             throw(~nobuf, "You are not allowed to send buffers.");
@@ -523,45 +505,6 @@ protected method .add_remembered() {
     remembered = (remembered || #[]).add(name, what);
 };
 
-protected method .add_trustee_cmd() {
-    arg cmdstr, cmd, args;
-    var syn, obj, trustee;
-    
-    (> .perms(caller(), 'command) <);
-    trustee = args[1];
-    args = args[2];
-    if (args && ((args[1]) == "to"))
-        args = delete(args, 1);
-    args = join(args);
-    if (!args)
-        throw(~stop, ("Syntax: " + cmd) + " <trustee> to <object>");
-    obj = (> .match_env_nice(args) <);
-    catch any {
-        (> obj.add_trusted(trustee) <);
-        return [(("Added trustee " + (trustee.namef('ref))) + " to ") + (obj.namef('ref)), (((obj.namef('ref)) + " now trusts: ") + ((((obj.trusted('literal)).compress()).mmap('namef, 'ref)).to_english("nobody"))) + "."];
-    } with {
-        return (traceback()[1])[2];
-    }
-};
-
-protected method .add_writer_cmd() {
-    arg cmdstr, cmd, args;
-    var syn, obj, writer;
-    
-    (> .perms(caller(), 'command) <);
-    args = (args.replace(" to ", " ")).explode();
-    if ((!args) || ((args.length()) != 2))
-        (> .tell_error(cmd + " <writer> [to] <object>") <);
-    writer = (> .match_env_nice(args[1]) <);
-    obj = (> .match_env_nice(args[2]) <);
-    catch any {
-        obj.add_writer(writer);
-        return [(("Sucessfully added writer " + (writer.namef('xref))) + " to ") + (obj.namef('xref)), ("New writers list: " + ((((obj.writers('literal)).compress()).mmap('namef, 'xref)).to_english())) + "."];
-    } with {
-        .tell((traceback()[1])[2]);
-    }
-};
-
 protected method .age_cmd() {
     arg cmdstr, com, obj;
     var time, gender, out;
@@ -580,64 +523,173 @@ protected method .age_cmd() {
 
 protected method .audit_cmd() {
     arg cmdstr, cmd, args;
-    var who, obj, col, str, out, total, line, syntax, loc, size, full, s, o;
+    var opts, o, summary, obj, syntax, t;
     
     (> .perms(caller(), 'command) <);
-    o = (> $parse_lib.opt(args, "f?ull") <);
-    args = (o[1]).join();
-    full = (| "f?ull" in ((o[2]).slice(1)) |);
-    if (full)
-        full = ((o[2])[full])[3];
-    who = (| .match_environment(args) |);
-    if (!who) {
-        who = (| $user_db.search(args) |);
-        if (!who)
-            return ("Unable to find \"" + args) + "\".";
-    }
-    if (full) {
-        col = (.linelen()) / 2;
-        out = [(((("Objects managed by " + (who.namef('ref))) + ":").pad(col)) + ("bytes".pad(-10))) + " Location"];
-        for obj in (who.managed()) {
-            if (!valid(obj)) {
-                .tell(("  ** invalid object (" + toliteral(obj)) + ") **");
-                continue;
-            }
-            line = ("  " + (obj.namef('xref))).pad(col);
-            s = obj.size();
-            size = s.to_english();
-            line = (line + (size.pad(-(((size.length()) > 10) ? (size.length()) : 10)))) + " ";
-            loc = (obj.has_ancestor($located)) ? (("[" + ((obj.location()).name())) + "]") : "";
-            out += [(line + loc).pad(.linelen())];
-            total += s;
-        }
+    [args, opts] = (> $parse_lib.opt(args, "q?uota", "m?anages", "w?rites", "t?rusted-by", "s?ummary") <);
+    if ((o = "s?ummary" in (opts.slice(1))))
+        summary = (opts[o])[2];
+    syntax = cmd + " <object> +m?anages|+w?rites|+t?rusted|+q?uota";
+    if (!args) {
+        obj = this();
     } else {
-        if ((who != this()) && (!(.is($admin))))
-            return "Only admins can get quota usage information from other users.";
-        out = [("Quota information on " + (who.namef('ref))) + ":"];
-        for obj in (who.managed()) {
-            if (valid(obj))
-                total += obj.size();
+        args = args.join();
+        obj = (| .match_environment(args) |);
+        if (!obj) {
+            obj = (| $user_db.search(args) |);
+            if (!obj)
+                return ("Unable to find \"" + args) + "\".";
         }
     }
-    if ((who == this()) || (.is($admin))) {
-        out += [("Total usage: " + ($integer.to_english(total))) + " bytes"];
-        size = who.get_quota();
-        line = ("Total quota: " + ($integer.to_english(size))) + " bytes";
-        out += [line, ("Remaining:   " + ($integer.to_english(size - total))) + " bytes"];
+    if (!opts)
+        opts = [["noopt", "", 1, ""]];
+    
+    // not pretty, but why not loop it
+    for o in (opts) {
+        if ((o[1]) == "s?ummary")
+            continue;
+        switch (o[1]) {
+            case "s?ummary":
+            case "q?uota":
+                .tell(.audit_cmd__quota(obj, summary));
+            case "m?anages":
+                t = .audit_cmd__manages(obj);
+                t = $ctext_frob.new_with([$cml_lib.fmt_table("60%,13%,27%", t)]);
+                .tell(t);
+            case "w?rites":
+                t = .audit_cmd__writes(obj);
+                t = $ctext_frob.new_with([$cml_lib.fmt_table("60%,13%,27%", t)]);
+                .tell(t);
+            case "t?rusted-by":
+                t = .audit_cmd__trusted(obj);
+                t = $ctext_frob.new_with([$cml_lib.fmt_table("60%,13%,27%", t)]);
+                .tell(t);
+            case "noopt":
+                .tell($object_lib.format_object(obj, 0));
+            default:
+                (> .tell_error(syntax, "Invalid Argument " + ((o[1]) || (((o[3]) ? "+" : "-") + (o[2])))) <);
+        }
     }
-    if (!(who.quota_valid())) {
-        if (who == this())
+};
+
+private method .audit_cmd__list() {
+    arg name, list, expand, context;
+    var out, c, tr, t, td, o, tsz, s, tot, span, l;
+    
+    c = $cml_lib;
+    
+    // table header, expand used with $page_set
+    if (expand) {
+        name = "[-] " + name;
+        tr = [c.fmt_td(c.fmt_href("set_objlist?e=" + expand, c.fmt_b(name)))];
+    } else {
+        tr = [c.fmt_td(c.fmt_b(name))];
+    }
+    tr += [c.fmt_td(strfmt("%10r", "Size"))];
+    t = [c.fmt_tr(@(tr + [c.fmt_td(" Location")]))];
+    
+    // table rows
+    span = ["colspan", "3"];
+    for o in (list) {
+        pause();
+        if (!valid(o)) {
+            tr = [c.fmt_td(("  ** invalid object (" + toliteral(o)) + " **", span)];
+        } else {
+            tot++;
+            tr = [c.fmt_td(@[c.fmt_obj(context, o, "  " + (o.namef('xref)))])];
+            s = o.size();
+            tr += [c.fmt_td(strfmt("%10r", s.to_english()))];
+            tsz += s;
+            if (o.is($located)) {
+                l = o.location();
+                s = [" [", c.fmt_obj('look, l, l.name()), "]"];
+            } else {
+                s = "";
+            }
+            tr += [c.fmt_td(s)];
+        }
+        t += [c.fmt_tr(@tr)];
+    }
+    return [tsz, t + [c.fmt_tr(c.fmt_td(tot + " total.", ["colspan", "3"]))]];
+};
+
+protected method .audit_cmd__manages() {
+    arg obj, @opts;
+    var list, title, out, tot, sz, expand, context;
+    
+    if ((obj != this()) && (!(.is($admin))))
+        (> .tell_error("Only administrators can list other managers") <);
+    list = obj.managed();
+    title = ("Managed by " + (obj.namef('ref))) + ":";
+    [expand, context] = [@opts, 0, 'display];
+    return (.audit_cmd__list(title, list, expand, context))[2];
+};
+
+protected method .audit_cmd__quota() {
+    arg obj, summary;
+    var title, list, out, sz, o, tot, t, tr, c, quota;
+    
+    if ((obj != this()) && (!(.is($admin))))
+        (> .tell_error("Only administrators can list quota on others") <);
+    list = obj.managed();
+    title = ("Managed by " + (obj.namef('ref))) + ":";
+    c = $cml_lib;
+    t = (out = []);
+    if (!summary) {
+        [sz, out] = .audit_cmd__list(title, list, 0, 'display);
+        out = [$ctext_frob.new_with([c.fmt_table("60%,13%,27%", out)])];
+    } else {
+        for o in (list) {
+            if (valid(o)) {
+                tot++;
+                sz += o.size();
+            }
+        }
+        tr = [c.fmt_td("Objects " + title), c.fmt_td(tot + " total.")];
+        t += [c.fmt_tr(@tr)];
+    }
+    t += [c.fmt_tr(c.fmt_td("Total usage:"), c.fmt_td(sz.to_english()))];
+    quota = obj.get_quota();
+    t += [c.fmt_tr(c.fmt_td("Total quota:"), c.fmt_td((quota.to_english()) + " bytes"))];
+    t += [c.fmt_tr(c.fmt_td("Remaining:"), c.fmt_td(((quota - sz).to_english()) + " bytes"))];
+    out += [$ctext_frob.new_with([c.fmt_table("70%,30%", t)])];
+    if ((obj.quota_valid()) < 0) {
+        if (obj == this())
             out += ["*** You are over quota! ***"];
         else
-            out += [("*** " + (who.name())) + " is over quota! ***"];
+            out += [("*** " + (obj.name())) + " is over quota! ***"];
     }
-    if (who.quota_exempt()) {
-        if (who == this())
+    if (obj.quota_exempt()) {
+        if (obj == this())
             out += ["*** You are exempt from quota! ***"];
         else
-            out += [("*** " + (who.name())) + " is exempt from quota! ***"];
+            out += [("*** " + (obj.name())) + " is exempt from quota! ***"];
     }
     return out;
+};
+
+protected method .audit_cmd__trusted() {
+    arg obj, @opts;
+    var list, title, out, tot, sz, expand, context;
+    
+    if ((obj != this()) && (!(.is($admin))))
+        (> .tell_error("Only administrators can list other trustees") <);
+    list = obj.trusted_by();
+    title = ("Objects which trust " + (obj.namef('ref))) + ":";
+    [expand, context] = [@opts, 0, 'display];
+    return (.audit_cmd__list(title, list, expand, context))[2];
+};
+
+protected method .audit_cmd__writes() {
+    arg obj, @opts;
+    var list, title, out, tot, sz, expand, context;
+    
+    if ((obj != this()) && (!(.is($admin))))
+        (> .tell_error("Only administrators can list other writers") <);
+    list = obj.writes();
+    title = ("Writable for " + (obj.namef('ref))) + ":";
+    [expand, context] = [@opts, 0, 'display];
+    return (.audit_cmd__list(title, list, expand, context))[2];
 };
 
 protected method .away() {
@@ -677,9 +729,9 @@ public method .back_cmd() {
 
 public method .check_password() {
     arg str, @cinfo;
-    var match, warn;
+    var match, warn, ts1, ts2;
     
-    (> .perms(caller(), definer(), $login_interface, $security_lib, $pop3_interface) <);
+    (> .perms(caller(), definer(), $security_lib) <);
     
     // no password means always match
     if (!password)
@@ -698,12 +750,89 @@ public method .check_password() {
             failed++;
     }
     
-    // update old DES passwords to newer SHA passwords
-    if (match && (!match_begin(password, "$2$")))
-        password = crypt(str);
-    
     // done
     return match;
+};
+
+protected method .chown_cmd() {
+    arg cmdstr, cmd, args;
+    var opts, obj, syn, o, t, list, s;
+    
+    (> .perms(caller(), 'command) <);
+    [args, opts] = (> $parse_lib.opt(args, "m?anager", "w?riters", "t?rustees") <);
+    syn = cmd + " <object> +-<m?anager|writers|trustees>=who,...";
+    if (!opts) {
+        if (listlen(args) > 1) {
+            opts = [["m?anager", "m", 1, args.last()]];
+            args = sublist(args, 1, listlen(args) - 1);
+        } else {
+            return [syn, "Nothing to do?"];
+        }
+    }
+    
+    // maybe someday make this handle a list of objs
+    obj = (> .match_env_nice(args.join(), syn) <);
+    for o in (opts) {
+        switch (o[1]) {
+            case "m?anager":
+                t = (> .match_env_nice(o[4]) <);
+                if ((!(t.is($user))) && (!(.is($admin))))
+                    return "Sorry you can only set users as managers.";
+                catch any
+                    (> obj.change_manager(t) <);
+                with
+                    (> .tell_error((traceback()[1])[2]) <);
+                return ((("Manager on " + (obj.namef('ref))) + " changed to ") + (t.namef('ref))) + ".";
+            case "w?riters":
+                if (!(o[4]))
+                    (> .tell_error("No writers to change", syn) <);
+                list = map t in ((o[4]).explode_english_list()) to ((> .match_env_nice(t) <));
+                if (o[3])
+                    s = "Added ";
+                else
+                    s = "Removed ";
+                for t in (list) {
+                    catch any {
+                        if (o[3]) {
+                            (> obj.add_writer(t) <);
+                            .tell((s + (t.namef('ref))) + " from writers list...");
+                        } else {
+                            (> obj.del_writer(t) <);
+                            .tell((s + (t.namef('ref))) + " from writers list...");
+                        }
+                    } with {
+                        (> .tell_error((traceback()[1])[2]) <);
+                    }
+                }
+                .tell(("New writers list for " + (obj.namef('ref))) + ":");
+                .tell(((((obj.writers('literal)).compress()).mmap('namef, 'ref)).to_english("noone")) + ".");
+            case "t?rustees":
+                if (!(o[4]))
+                    (> .tell_error("No trustees to change", syn) <);
+                list = map t in ((o[4]).explode_english_list()) to ((> .match_env_nice(t) <));
+                if (o[3])
+                    s = "Added ";
+                else
+                    s = "Removed ";
+                for t in (list) {
+                    catch any {
+                        if (o[3]) {
+                            (> obj.add_trusted(t) <);
+                            .tell((s + (t.namef('ref))) + " from trusted list...");
+                        } else {
+                            (> obj.del_trusted(t) <);
+                            .tell((s + (t.namef('ref))) + " from trusted list...");
+                        }
+                    } with {
+                        (> .tell_error((traceback()[1])[2]) <);
+                    }
+                }
+                .tell(("New trustee list for " + (obj.namef('ref))) + ":");
+                .tell(((((obj.trusted('literal)).compress()).mmap('namef, 'ref)).to_english("noone")) + ".");
+            default:
+                (> .tell_error(syntax, "Invalid Argument " + ((o[1]) || (((o[3]) ? "+" : "-") + (o[2])))) <);
+        }
+    }
 };
 
 protected method .clear_away() {
@@ -936,9 +1065,6 @@ protected method .context_cmd() {
 };
 
 root method .core_user() {
-    // for now we dont core the bug system
-    (| .del_command("@rep?ort", 'report_cmd) |);
-    (| .del_method('report_cmd) |);
     if (this() == definer())
         context = 0;
     else
@@ -1025,42 +1151,6 @@ protected method .del_remembered() {
     remembered = (remembered || #[]).del(name);
     if (!remembered)
         clear_var('remembered);
-};
-
-protected method .del_trustee_cmd() {
-    arg cmdstr, cmd, args;
-    var syn, obj, trustee;
-    
-    (> .perms(caller(), 'command) <);
-    trustee = args[1];
-    args = args[2];
-    if (args && ((args[1]) == "from"))
-        args = delete(args, 1);
-    obj = (> .match_env_nice(args.join()) <);
-    catch any {
-        (> obj.del_trusted(trustee) <);
-        return [(("Removed trustee " + (trustee.namef('ref))) + " from ") + (obj.namef('ref)), (((obj.namef('ref)) + " now trusts: ") + ((((obj.trusted('literal)).compress()).mmap('namef, 'ref)).to_english("nobody"))) + "."];
-    } with {
-        .tell((traceback()[1])[2]);
-    }
-};
-
-protected method .del_writer_cmd() {
-    arg cmdstr, cmd, args;
-    var syn, obj, writer;
-    
-    (> .perms(caller(), 'command) <);
-    args = (args.replace(" from ", " ")).explode();
-    if ((!args) || ((args.length()) != 2))
-        (> .tell_error(cmd + " <writer> [from] <object>") <);
-    writer = .match_env_nice(args[1]);
-    obj = .match_env_nice(args[2]);
-    catch any {
-        obj.del_writer(writer);
-        return [(("Sucessfully removed writer " + (writer.namef('xref))) + " from ") + (obj.namef('xref)), ("New writers list: " + ((((obj.writers('literal)).compress()).mmap('namef, 'xref)).to_english())) + "."];
-    } with {
-        .tell((traceback()[1])[2]);
-    }
 };
 
 public method .description() {
@@ -1232,7 +1322,7 @@ protected method .finger_cmd() {
             return out + [(((("  " + (who.name())) + " has been away for ") + ($time.dhms(time() - (who.away_time()), 1))) + ": ") + awaymsg];
         return out + [("  " + (who.name())) + " is currently connected."];
     } else {
-        return out + [(((("  " + (who.name())) + " was last connected at ") + ($time.format("%r", abs(who.connected_at())))) + " ") + ($time.format("%A %B %d %Y", abs(who.connected_at())))];
+        return out + [(((("  " + (who.name())) + " was last connected at ") + ($time.format("%I:%M:%S %p", abs(who.connected_at())))) + " ") + ($time.format("%A %B %d %Y", abs(who.connected_at())))];
     }
 };
 
@@ -1717,34 +1807,6 @@ protected method .look_cmd() {
             return line;
         return desc;
     }
-};
-
-protected method .managed_cmd() {
-    arg cmdstr, cmd, args;
-    var manager, managed, obj, out, len;
-    
-    (> .perms(caller(), 'command) <);
-    manager = (| .match_environment(args) |);
-    if (!manager) {
-        manager = (| $user_db.search(args) |);
-        if (!manager)
-            return ("Unable to find \"" + args) + "\".";
-    }
-    managed = manager.managed();
-    if (!managed)
-        return (manager.namef('ref)) + " does not manage any objects.";
-    out = [(manager.namef('ref)) + " manages:"];
-    len = (.linelen()) / 2;
-    for obj in (managed)
-        out += [(("  " + ((obj.namef('xref)).pad(len))) + " ") + ($object_lib.see_perms(obj, ["", ""]))];
-    return out;
-};
-
-protected method .manager_cmd() {
-    arg cmdstr, cmd, what;
-    
-    (> .perms(caller(), 'command) <);
-    return (((what.namef('ref)) + " is managed by ") + ((what.manager()).namef('ref))) + ".";
 };
 
 protected method .map_cmd() {
@@ -2617,6 +2679,59 @@ protected method .rename_cmd() {
     }
 };
 
+protected method .report_cmd() {
+    arg cmdstr, cmd, @args;
+    var groups, group, id, s, lasttb, tb, text, request;
+    
+    .tell("");
+    .tell(("** Entering the " + ($motd.server_name())) + " action request system **");
+    .tell("** Use \"@abort\" at any time to abort this system **");
+    groups = setremove($argroup.children(), $dismissed_problems);
+    if (listlen(groups) > 1) {
+        while (1) {
+            .tell(["**", "** Available Problem Groups:"]);
+            for group in [1 .. listlen(groups)]
+                .tell(strfmt("**      %2r: ", group) + ((groups[group]).name()));
+            s = (> .prompt("** Select most applicable Problem Group [1] ") <);
+            if (!s)
+                group = groups[1];
+            else if (s.is_numeric())
+                group = (| groups[toint(s)] |);
+            else
+                group = (| groups.match_name(s) |);
+            if (!group)
+                .tell(["**", ("** Sorry, '" + s) + "' is not a valid group."]);
+            else
+                break;
+        }
+    } else {
+        group = groups[1];
+    }
+    .tell([("** " + (group.name())) + " Problem Report Group", ""]);
+    if ((tb = .last_traceback()) && (((tb[1]) + 300) > time())) {
+        .tell("** You received the following traceback in the last 5 minutes:");
+        .tell("**");
+        .tell((tb[3]).prefix("**   "));
+        .tell("**");
+        s = (> .prompt("** Is the issue you are reporting in regard to this traceback? [yes] ") <);
+        if ((s.is_boolean()) != 0)
+            tb = tb[3];
+        else
+            tb = [];
+        .tell("**");
+    } else {
+        tb = [];
+    }
+    .tell("** Explain the problem as completely as possible **");
+    text = .read("** Enter \".\" to finish or \"@abort\" to abort **");
+    if (type(text) != 'list)
+        return;
+    s = (> .prompt(["**", "** Summarize the problem: "]) <);
+    request = group.submit_request(s, text, tb);
+    ._broadcast('Admin, ((((group.name()) + " Problem #") + (request.id())) + " submitted by ") + (.namef('ref)));
+    return "** Problem Report Submitted, Thank you for your help";
+};
+
 protected method .reset_parsers() {
     var p, list;
     
@@ -2952,18 +3067,15 @@ public method .title() {
     return title || "";
 };
 
-protected method .trusted_by_cmd() {
-    arg cmdstr, cmd, what;
+public method .traceback_cmd() {
+    arg @args;
+    var tb, last;
     
     (> .perms(caller(), 'command) <);
-    return [(what.namef('ref)) + " is trusted by:"] + (._list_objects(what.trusted_by(), 'trusted));
-};
-
-protected method .trusts_cmd() {
-    arg cmdstr, cmd, what;
-    
-    (> .perms(caller(), 'command) <);
-    return [(what.namef('ref)) + " trusts:"] + (._list_objects(what.trusted('literal), 'trusted_by));
+    tb = .last_traceback();
+    last = time() - (tb[1]);
+    .tell(("=> Last traceback (recieved " + ($time.to_english(last))) + " ago):");
+    .tell($parse_lib.traceback(tb[2], -1, ""));
 };
 
 public method .tutorial_cmd() {
@@ -3183,20 +3295,6 @@ public method .will_move() {
         throw(~user, "Users cannot move into other users!");
     if ((mover.is($user)) && ((mover != this()) && (!($sys.is_system(mover)))))
         throw(~user, "Only system priviledged objects can freely move users around.");
-};
-
-protected method .writers_cmd() {
-    arg cmdstr, cmd, what;
-    
-    (> .perms(caller(), 'command) <);
-    return [(what.namef('ref)) + " is writable by:"] + (._list_objects(what.writers('literal), 'writes));
-};
-
-protected method .writes_cmd() {
-    arg cmdstr, cmd, what;
-    
-    (> .perms(caller(), 'command) <);
-    return [(what.namef('ref)) + " is a writer for:"] + (._list_objects(what.writes(), 'writers));
 };
 
 

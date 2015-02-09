@@ -3,7 +3,6 @@ new object $remote_cache: $command_cache;
 
 var $command_cache commands = 0;
 var $command_cache modules = [];
-var $command_cache shortcuts = 0;
 var $dmi_data descriptions = #[];
 var $has_commands local = #[];
 var $has_commands remote = #[];

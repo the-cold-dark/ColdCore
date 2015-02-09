@@ -33,6 +33,7 @@ public method .handle_POST_input() {
         if (buflen(buffer) < len) {
             buffer = `[];
             status = 400;
+            reading = 0;
             throw(~timeout, "Timeout on receiving POST request");
         }
     }
@@ -44,6 +45,7 @@ public method .handle_POST_input() {
         body = delete(body, listlen(body));
     else
         body = replace(body, listlen(body), buf_to_str(body[listlen(body)]));
+    reading = 0;
     return body;
 };
 

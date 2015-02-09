@@ -7,4 +7,8 @@ var $root inited = 1;
 var $root managed = [$core];
 var $root manager = $core;
 
+root method .core_group() {
+    group = #[];
+};
+
 

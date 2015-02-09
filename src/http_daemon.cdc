@@ -11,7 +11,7 @@ var $root flags = ['methods, 'code, 'variables, 'core];
 var $root inited = 1;
 var $root managed = [$http_daemon];
 var $root manager = $http_daemon;
-var $root quota = 'exempt;
+var $root quota = 1;
 var $root quota_exempt = 1;
 
 protected method .figure_site_url() {

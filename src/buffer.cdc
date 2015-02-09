@@ -43,33 +43,15 @@ public method .bufsub() {
     var i, la, lb, lt;
     
     // do we need a builtin for this?
-    // shagged from Kipp's core, until I write a builtin, optimized by Brandon
+    // from Kipp's core (until I write a builtin--optimized by Brandon) 
     if ((a == b) || ((buflen(a) > buflen(buf)) || ((!a) || (!buf))))
         return buf;
     la = buflen(a);
     lb = buflen(b);
-    lt = buflen(buf) - la;
+    lt = buflen(buf);
     i = 1;
     anticipate_assignment();
-    while ((i < lt) && (i = bufidx(buf, a, i))) {
-        buf = (subbuf(buf, 1, i - 1) + b) + subbuf(buf, i + la);
-        i += lb;
-    }
-    return buf;
-};
-
-public method .bufsub2() {
-    arg buf, a, b;
-    var i, la, lb, lt;
-    
-    if ((a == b) || ((buflen(a) > buflen(buf)) || ((!a) || (!buf))))
-        return buf;
-    la = buflen(a);
-    lb = buflen(b);
-    lt = buflen(buf) - la;
-    i = 1;
-    anticipate_assignment();
-    while ((i < lt) && (i = bufidx(buf, a, i))) {
+    while ((i <= buflen(buf)) && (i = bufidx(buf, a, i))) {
         buf = (subbuf(buf, 1, i - 1) + b) + subbuf(buf, i + la);
         i += lb;
     }

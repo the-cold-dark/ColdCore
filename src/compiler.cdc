@@ -210,8 +210,8 @@ public method .do_web() {
     
     if (!(flags.contains("src")))
         throw(~parse, "no 'src' flag for {web}");
-    if (!(flags.contains("name")))
-        throw(~parse, "no 'name' flag for {web}");
+    if (!args)
+        throw(~parse, "no arguments for {web} to define name");
     return [$format.new_tag("web", flags, args), vars];
 };
 

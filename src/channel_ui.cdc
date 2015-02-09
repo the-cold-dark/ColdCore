@@ -27,7 +27,9 @@ var $has_commands local = \
   ["@purge-channel",\
     [["@purge-channel", "*", "@purge-channel <any>", 'channel_purge_cmd, #[[1, ['any, []]]]]]],\
   ["@ch?annels",\
-    [["@ch?annels", "*", "@ch?annels <any:+f?ull +d?etailed>", 'channels_cmd, #[[1, ['any_opt, ["f?ull", "d?etailed"]]]]]]]];
+    [["@ch?annels", "*", "@ch?annels <any:+f?ull +d?etailed>", 'channels_cmd, #[[1, ['any_opt, ["f?ull", "d?etailed"]]]]]]],\
+  ["@channel-paste",\
+    [["@channel-paste", "* to", "@channel-paste <any> to", 'channel_page_cmd, #[[1, ['any, []]]]]]]];
 var $has_commands remote = #[];
 var $has_commands shortcuts = #[];
 var $root created_on = 838251646;
@@ -100,7 +102,7 @@ protected method .addcom_cmd() {
 
 public method .broadcast() {
     arg channel, msg;
-    var q, spammer_name, message;
+    var q, spammer_name, message, target, user;
     
     (> .perms(sender()) <);
     
@@ -125,9 +127,22 @@ public method .broadcast() {
         return "Sorry, that's a listen only channel.";
     if (!(active_channels.contains(channel)))
         return "You must be on a channel to send a message to it.";
+    spammer_name = .name();
+    if (((msg[1]) == "'") || ((msg[1]) == "-")) {
+        target = ((msg.explode())[1]).subrange(2);
+        msg = msg.subrange((target.length()) + 3);
+        catch ~namenf
+            user = $user_db.match(target);
+        with
+            return target + " is not a valid user.";
+        if (!(user.connected()))
+            return (user.name()) + " is not connected.";
+        if (!(user.channel_member(channel)))
+            return (user.name()) + " is not a member of that channel.";
+        spammer_name += (" (to " + (user.name())) + ")";
+    }
     
     // check for poses, thinking, etc.
-    spammer_name = .name();
     switch (msg[1]) {
         case ":":
             message = (spammer_name + " ") + (msg.subrange(2));
@@ -345,6 +360,21 @@ protected method .channel_on() {
     } else {
         .tell("You are already on this channel.");
     }
+};
+
+public method .channel_page_cmd() {
+    arg cmd, cmstr, channel;
+    var text, line;
+    
+    if ((.channel_alias(channel)) == "")
+        return .tell(("Channel alias " + channel) + " does not exist.");
+    text = .read();
+    if (text == 'aborted)
+        return .tell("@paste aborted.");
+    else if (!text)
+        return .tell("@paste nothing?");
+    for line in (text)
+        .broadcast(.channel_alias(channel), ":paste: " + line);
 };
 
 public method .channel_purge_cmd() {

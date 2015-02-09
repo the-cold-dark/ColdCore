@@ -1,7 +1,9 @@
 
 new object $user_info: $user_interfaces;
 
+var $command_cache commands = 0;
 var $command_cache modules = [];
+var $command_cache shortcuts = 0;
 var $has_commands local = #[];
 var $has_commands remote = #[];
 var $has_commands shortcuts = #[];

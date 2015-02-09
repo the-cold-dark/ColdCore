@@ -2,6 +2,8 @@
 new object $thing: $located;
 
 var $described prose = [];
+var $foundation defined_msgs = #[["desc-integrated", #[['branches, ["general"]]]]];
+var $foundation msgs = #[["desc-integrated", #[["general", <$ctext_frob, [[], #[]]>]]]];
 var $has_commands local = #[];
 var $has_commands remote = #[["@boot", [["@boot", "*", "@boot <this>", 'boot_cmd, #[[1, ['this, []]]]]]]];
 var $has_commands shortcuts = #[];
@@ -190,8 +192,13 @@ public method .will_move() {
         return;
     if (lock && ((mover != $path) && ((mover != $location) && (!(lock.try(mover))))))
         throw(~locked, ((((.name()).capitalize()) + " is locked to ") + (lock.lock_name('thing))) + ".");
-    else if (!(.trusts(sender())))
-        throw(~move, "You cannot move " + this());
+    
+    //else if (!.trusts(mover))
+    //    throw(~move, "You cannot move " + this());
+    //
+    // If this is left in (and fixed as above, used to be sender() instead of
+    // mover), then nothing can move anything that doesn't trust the mover.
+    // --Sean 1999.08.27
 };
 
 

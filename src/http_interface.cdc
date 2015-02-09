@@ -18,7 +18,7 @@ var $http_interface info = #[['generate, 'change], ['script_name, "/aredit/chang
 var $http_interface keep_alive = 0;
 var $http_interface method = "GET";
 var $http_interface sent = 0;
-var $http_interface status = 0;
+var $http_interface status = 404;
 var $root created_on = 863766118;
 var $root credit = ["Brad Roberts <braddr@puremagic.com>", "Bruce Mitchener, Jr. <bruce@puremagic.com>"];
 var $root flags = ['variables, 'methods, 'code, 'core];
@@ -27,19 +27,15 @@ var $root managed = [$http_interface];
 var $root manager = $http_interface;
 var $root quota_exempt = 1;
 
-public method ._respond() {
-    arg input;
-    var output, t, user;
+private method ._respond() {
+    arg input, user;
+    var output, t;
     
-    if ($security_lib.check_userdb_with_optional(header['interface]))
-        user = (header['interface]).get_info('run_as);
-    else
-        user = $no_one;
     switch (type(input)) {
         case 'list:
             output = `[];
             for t in (input)
-                output += ._respond(t);
+                output += ._respond(t, user);
         case 'string:
             output = str_to_buf(input) + `[10];
         case 'buffer:
@@ -90,6 +86,66 @@ public method .get_info() {
     return (> info[key] <);
 };
 
+private method .handle_authorization() {
+    arg desc, page;
+    var r, auth, page;
+    
+    if ((| info['browser_auth] |) || (| desc['auth] |)) {
+        r = 'forbidden;
+        if ((auth = (| desc['auth] |)) && (auth != 'none))
+            r = ((desc['auth])[1]).((desc['auth])[2])(this(), @(desc['auth])[3]);
+        else
+            r = $security_lib.check_userdb_with_password(this());
+        if (r) {
+            switch (type(r)) {
+                case 'list:
+                    if ((r[1]) == 'redirect) {
+                        r = .expand_url(r[2]);
+                        .respond(.response(302, "Relocated at: " + r), "Location: " + r);
+                        return 0;
+                    } else {
+                        .respond(.response(401, "Authorization Required"), ((("WWW-Authenticate: " + (r[1])) + " realm=\"") + (r[2])) + "\"");
+                        return 0;
+                    }
+                case 'symbol:
+                    .respond(.response(403, "Access forbidden"));
+                    return 0;
+            }
+        }
+    } else if (!(page.is($page))) {
+        .respond(.response(500, ("Authorization info missing (" + page) + " is not a $page)"));
+        return 0;
+    }
+    return 1;
+};
+
+private method .handle_lock_object() {
+    var r, lock;
+    
+    lock = (info['lock_object]).get_lock();
+    r = (lock[1]).(lock[2])(this(), @lock[3]);
+    if (r) {
+        switch (type(r)) {
+            case 'list:
+                if ((r[1]) == 'redirect) {
+                    r = .expand_url(r[2]);
+                    .respond(.response(302, "Relocated at: " + r), "Location: " + r);
+                    return 0;
+                } else {
+                    status = 401;
+                    .respond(.response(401, "Authorization Required"), ((("WWW-Authenticate: " + (r[1])) + " realm=\"") + (r[2])) + "\"");
+    
+                    //           .respond(["<HEAD><TITLE>Authorization Required</TITLE></HEAD>", "<BODY>", "<H1>Authorization Required</H1>", "Browser not authentication-capable or authentication failed.", "</BODY>"], "WWW-Authenticate: " + r[1] + " realm=\"" + r[2] + "\"");
+                    return 0;
+                }
+            case 'symbol:
+                .respond(.response(403, "Access forbidden"));
+                return 0;
+        }
+    }
+    return 1;
+};
+
 public method .header() {
     arg field;
     
@@ -97,7 +153,8 @@ public method .header() {
 };
 
 public method .http_method_GET() {
-    var page, r, description, processed_args, final_args, item, lock;
+    arg @nopage;
+    var page, r, desc, processed_args, final_args, item, lock;
     
     status = 200;
     page = $directories.find_page(info['path], this());
@@ -109,31 +166,18 @@ public method .http_method_GET() {
         .respond(.response(302, "Relocated at: " + r), "Location: " + r);
         return;
     }
+    
+    // get a lock, if necessary
     if (info['lock_object]) {
-        lock = (info['lock_object]).get_lock();
-        r = (lock[1]).(lock[2])(this(), @lock[3]);
-        if (r) {
-            switch (type(r)) {
-                case 'list:
-                    if ((r[1]) == 'redirect) {
-                        r = .expand_url(r[2]);
-                        .respond(.response(302, "Relocated at: " + r), "Location: " + r);
-                        return;
-                    } else {
-                        status = 401;
-                        .respond(["<HEAD><TITLE>Authorization Required</TITLE></HEAD>", "<BODY>", "<H1>Authorization Required</H1>", "Browser not authentication-capable or authentication failed.", "</BODY>"], ((("WWW-Authenticate: " + (r[1])) + " realm=\"") + (r[2])) + "\"");
-                        return;
-                    }
-                case 'symbol:
-                    .respond(.response(403, "Access forbidden"));
-                    return;
-            }
-        }
+        if (!(.handle_lock_object()))
+            return;
     }
+    
+    // process args
     catch any {
-        description = (| $interface_registry.describe(page, info['generate]) |) || ((| page.describe_method(info['generate]) |) || #[]);
-        if ((| description['args] |))
-            processed_args = $adapter.process_args(args, description['args]);
+        desc = (| $interface_registry.describe(page, info['generate]) |) || ((| page.describe_method(info['generate]) |) || #[]);
+        if ((| desc['args] |))
+            processed_args = $adapter.process_args(args, desc['args]);
         else
             processed_args = args;
     } with {
@@ -151,36 +195,17 @@ public method .http_method_GET() {
                 return;
         }
     }
-    if ((| description['auth] |)) {
-        if ((description['auth]) != 'none) {
-            r = ((description['auth])[1]).((description['auth])[2])(this(), @(description['auth])[3]);
-            if (r) {
-                switch (type(r)) {
-                    case 'list:
-                        if ((r[1]) == 'redirect) {
-                            r = .expand_url(r[2]);
-                            .respond(.response(302, "Relocated at: " + r), "Location: " + r);
-                            return;
-                        } else {
-                            status = 401;
-                            .respond(["<HEAD><TITLE>Authorization Required</TITLE></HEAD>", "<BODY>", "<H1>Authorization Required</H1>", "Browser not authentication-capable or authentication failed.", "</BODY>"], ((("WWW-Authenticate: " + (r[1])) + " realm=\"") + (r[2])) + "\"");
-                            return;
-                        }
-                    case 'symbol:
-                        .respond(.response(403, "Access forbidden"));
-                        return;
-                }
-            }
-        }
-    } else if (!(page.is($page))) {
-        .respond(.response(500, "Authorization info missing"));
+    
+    // process Authentication, always auth user unless otherwise specified
+    if (!(.handle_authorization(desc, page)))
         return;
-    }
+    
+    // generate the page
     catch any {
         if (page.is($page))
             final_args = [header, info, processed_args];
-        else if ((| description['arg_order] |))
-            final_args = map item in (description['arg_order]) to (processed_args[item]);
+        else if ((| desc['arg_order] |))
+            final_args = map item in (desc['arg_order]) to (processed_args[item]);
         else
             final_args = [];
         if ((| info['run_as] |))
@@ -188,12 +213,18 @@ public method .http_method_GET() {
         else
             r = page.(info['generate])(@final_args);
         if (type(r) == 'list) {
-            if ((r[1]) == 'redirect) {
-                page = .expand_url(r[2]);
-                .respond(.response(302, "Relocated at: " + page), "Location: " + page);
-                return;
-            } else if (type(r[1]) != 'list) {
-                r = [r];
+            switch (r[1]) {
+                case 'redirect:
+                    page = .expand_url(r[2]);
+                    .respond(.response(302, "Relocated at: " + page), "Location:  " + page);
+                    return;
+                case 'auth:
+                    // do auth;
+                    .respond(.response(401, "Authorization Required"), ((("WWW-Authenticate: " + ((r[2])[1])) + " realm=\"") + ((r[2])[2])) + "\" domain=\"/\"");
+                    return;
+                default:
+                    if (type(r[1]) != 'list)
+                        r = [r];
             }
         } else {
             r = [r];
@@ -391,6 +422,8 @@ public method .process_auth_info() {
         case "Basic":
             [(user ?= ""), (pwd ?= "")] = ((str[2]).decode64()).explode(":");
             .set_info('browser_auth, ['basic, [user, pwd]]);
+    
+            // no MD5, no Digest support, blah
         default:
             $sys.log("$security_db: Unknown authorization type '" + (str[1]));
             .set_info('browser_auth, ['unknown, str]);
@@ -411,13 +444,15 @@ protected method .reset_variables() {
 
 public method .respond() {
     arg body, @rest;
-    var host, out;
+    var host, out, user;
     
     if (!(sender().is($page)))
         (> .perms(sender(), 'writer) <);
+    if (!(user = (| info['run_as] |)))
+        user = $no_one;
     if (status >= 400)
         keep_alive = 0;
-    out = ._respond(body);
+    out = ._respond(body, user);
     bytes = buflen(out);
     .send_header(@rest);
     (.connection()).write(out);
@@ -429,7 +464,7 @@ public method .respond() {
 
 public method .respond_with_file() {
     arg fstat, filename;
-    var host, tzadjust, datestr;
+    var host, tzadjust, datestr, retry, havefile, c, filetb;
     
     if (!(sender().is($page)))
         (> .perms(sender(), 'writer) <);
@@ -441,7 +476,46 @@ public method .respond_with_file() {
     } with {
         .send_header();
     }
-    (.connection()).cwritef(filename);
+    
+    // OIF, bizarreness with cwritef skipping the first chunk of the
+    // file, lets workaround it for now.
+    // .connection().cwritef(filename);
+    retry = 30;
+    
+    // lets wait up to 30 seconds or so, gah
+    // later, setup a multi-file scheme where more than one is open
+    // involve $cached_file...
+    while (!havefile) {
+        catch any {
+            havefile = $web_file.fopen(filename, "-");
+        } with {
+            filetb = traceback();
+            break;
+        }
+        retry--;
+        if (retry < 0)
+            break;
+        else if (retry < 5)
+            $scheduler.sleep(1);
+        else
+            pause();
+    }
+    if (havefile) {
+        c = .connection();
+        catch any {
+            while (1) {
+                pause();
+                c.write_buffer((> $web_file.fread(1024) <));
+            }
+        }
+        $web_file.fclose();
+    } else {
+        (.connection()).write("ERROR: unable to open file.");
+        if (filetb)
+            $sys.broadcast(("$web_file Error! (" + ((filetb[1])[2])) + ")");
+        else
+            $sys.broadcast("$web_file Bottleneck! ($web_file.close()?)");
+    }
     host = (.connection()).address();
     .log_request(host);
     .close_interface();
@@ -450,14 +524,19 @@ public method .respond_with_file() {
 
 public method .response() {
     arg code, message;
-    var name, x;
+    var name, x, page, title;
     
     status = code;
     if (!(name = (| $http_lib.get_code(code) |)))
-        return .response(500, "We had a booboo!  Invalid code: " + tostr(code));
+        return .response(500, "We had a booboo!  Invalid code: " + code);
     if (type(message) == 'string)
         message = [("<p align=center>" + message) + "</p>"];
-    return [((("<head><title>" + tostr(code)) + " ") + name) + "</title></head>", "<body bgcolor=\"#ffffff\">", ((("<h1 align=center>" + tostr(code)) + " ") + name) + "</h1>", "<hr size=1 noshade>", @message, ("<hr size=1 noshade><a href=\"/\"><b>" + ($motd.server_name())) + "</b></a></body>"];
+    title = (code + " ") + name;
+    page = $directories.build_header(#[], #[], #[], #[['title, title]]);
+    page += [("<h1 align=center>" + title) + "</h1>", "<hr size=1 noshade>"];
+    page += message;
+    page += $directories.build_footer(#[], #[], #[]);
+    return page;
 };
 
 protected method .send_header() {
@@ -484,6 +563,9 @@ public method .set_ctype() {
 public method .set_info() {
     arg key, data;
     
+    // Security: Only $directories and $http_interface can set info
+    // if you must extend, set the defining object in this list
+    (> .perms(caller(), $directories, $http_interface, $security_lib) <);
     info = info.add(key, data);
 };
 

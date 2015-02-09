@@ -163,12 +163,12 @@ public method .handle_shortcut_fields() {
 
 public method .parse_relation() {
     arg left, right;
-    var x, str, out;
+    var x, str, out, cards, last;
     
     left = .break_cards(left);
     right = .break_cards(right);
-    if ((((left[2]).length()) != ((right[2]).length())) || (!((left[2]).set_equal(right[2]))))
-        throw(~invrel, "Left side cards are not equal to the right side.");
+    if (((left[2]).length()) != ((right[2]).length()))
+        throw(~invrel, "Left side cards differ from the right side.");
     str = "";
     for x in (left[1]) {
         if (type(x) == 'string)
@@ -178,6 +178,17 @@ public method .parse_relation() {
         else
             str += "*";
     }
+    
+    // and now for some sanity...
+    cards = #[];
+    for x in (left[2]) {
+        if (x != (last + 1))
+            throw(~invcard, ((("Left side cards are not in sequence (%" + x) + " before %") + (x - 1)) + ").");
+        last = x;
+        cards = dict_add(cards, x, 1);
+    }
+    
+    // move to the right side
     out = [str, @left];
     str = "";
     for x in (right[1]) {
@@ -186,12 +197,32 @@ public method .parse_relation() {
         else
             str += "*";
     }
+    
+    // final sanity check...
+    for x in (right[2]) {
+        if (!dict_contains(cards, x))
+            throw(~invcard, ("Card %" + x) + " does not exist on the left side!");
+    }
+    
+    // good...
     return [out, [str, @right]];
+};
+
+public method .recard_shortcut() {
+    arg short;
+    var x, part;
+    
+    part = 1;
+    while ((x = stridx(short, "*"))) {
+        short = ((substr(short, 1, x - 1) + "%") + part) + substr(short, x + 1);
+        part++;
+    }
+    return short;
 };
 
 public method .unparse_shortcut() {
     arg s;
-    var part, line, short, method, args;
+    var part, line, short, method, args, x;
     
     line = "";
     [short, [method, args]] = s;
@@ -201,7 +232,8 @@ public method .unparse_shortcut() {
         else
             line += "%" + part;
     }
-    return ((((("\"" + (s[1])) + "\"").left(10)) + " => \"") + line) + "\"";
+    short = .recard_shortcut(short);
+    return ((((("\"" + short) + "\"").left(10)) + " => \"") + line) + "\"";
 };
 
 public method .unparse_shortcut_full() {
@@ -217,6 +249,7 @@ public method .unparse_shortcut_full() {
             out += ((out ? ", " : "") + "%") + part;
     }
     out = ((("." + method) + "(") + out) + ")";
+    short = .recard_shortcut(short);
     return (((("\"" + short) + "\"").left(10)) + " => ") + out;
 };
 

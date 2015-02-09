@@ -7,8 +7,7 @@ var $command_cache shortcuts = 0;
 var $described prose = [];
 var $foundation defined_msgs = #[["housekeeper", #[['branches, ["general"]]]], ["connect", #[['branches, ["general"]]]], ["disconnect", #[['branches, ["general"]]]]];
 var $foundation msgs = #[["housekeeper", #[["general", <$ctext_frob, [["The housekeeper arrives and takes ", <$generator, ["actor", [], [], 'gen_actor]>, "'s body away."], #[]]>]]], ["connect", #[["general", <$ctext_frob, [[<$generator, ["actor", [], [], 'gen_actor]>, " wakes up."], #[['this, $place]]]>]]], ["disconnect", #[["general", <$ctext_frob, [[<$generator, ["actor", [], [], 'gen_actor]>, " falls asleep."], #[['this, $place]]]>]]]];
-var $has_commands local = \
-  #[["fribble", [["fribble", "*", "fribble <any>", 'fribble_cmd, #[[1, ['any, []]]]]]]];
+var $has_commands local = #[];
 var $has_name name = ['uniq, "place", "the place"];
 var $location contents = [];
 var $place darkness = 0;
@@ -107,6 +106,8 @@ public method .did_housekeep() {
     var m, v;
     
     (> .perms(sender(), $housekeeper) <);
+    if (!(| (.realm()).get_setting("housekeeper-notify", $realm) |))
+        return;
     .announce(.eval_message("housekeeper", $place, #[["$actor", who], ["actor", who.name()], ["$here", this()], ["here", .name()]]));
 };
 
@@ -435,20 +436,6 @@ root method .uninit_place() {
     (| $place_db.place_destroyed(this()) |);
 };
 
-public method .update_exit_frob() {
-    arg this, what, new, @remove;
-    var i;
-    
-    (> .perms(caller(), $exit_frob) <);
-    i = (<sender(), this>) in exits;
-    if (remove)
-        this = this.del(what);
-    else
-        this = this.add(what, new);
-    exits = exits.replace(i, (<sender(), this>));
-    return (<sender(), this>);
-};
-
 public method .visible_exits() {
     var obv, exit;
     
@@ -502,7 +489,7 @@ public method .will_arrive() {
     
     (> pass(mover, old_place) <);
     if (restrict_entry && ((!(mover.is($path))) && ((mover != $housekeeper) && ((!(.trusts(mover))) && ((| (mover.location()) != this() |) && (!(restrict_entry.try(mover))))))))
-        throw(~locked, ((((.name()).capitalize()) + " is locked to ") + (restrict_entry.lock_name('place))) + ".");
+        throw(~restricted_entry, ((("Entry to " + (.name())) + " is restricted to ") + (restrict_entry.lock_name('place))) + ".");
 };
 
 public method .will_attach() {

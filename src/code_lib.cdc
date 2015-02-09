@@ -417,6 +417,55 @@ public method .random_password() {
     return out;
 };
 
+public method .random_password2() {
+    var len, out, con, vow, rare, more, c, caps, maxcaps, flag, last, special;
+    
+    len = random(6) + 7;
+    out = "";
+    con = "bcdfghjklmnprst";
+    rare = ["q", "aa", "ee", "oo", "qu", "v", "w", "x", "z", "y"];
+    vow = "aeiou";
+    more = "1234567890+,:.@'\"/!#%*^~";
+    flag = random(15);
+    maxcaps = random(4) + 2;
+    while (strlen(out) < len) {
+        switch (flag) {
+            case 1, 2:
+                special++;
+                c = more.random();
+                out += c;
+                flag = random(15);
+            case 3:
+                if (rare) {
+                    c = rare.random();
+                    if (random(2) == 1)
+                        rare = setremove(rare, c);
+                    out += c;
+                    flag = random(15);
+                }
+            case 4 .. 7:
+                c = vow.random();
+                out += c;
+                flag = random(7) + 8;
+            case 8 .. 15:
+                c = con.random();
+                while (c == last)
+                    c = con.random();
+                out += c;
+                flag = random(15);
+        }
+        last = c;
+    }
+    if (!special) {
+        for c in [1 .. random(len / 2)] {
+            special = more.random();
+            c = random(len);
+            out = strgraft(out, c, special);
+        }
+    }
+    return out;
+};
+
 public method .random_quote() {
     var which;
     
@@ -528,6 +577,7 @@ public method .verify_code() {
         // optional warnings
         if (warn && (m = line.match_regexp(method)))
             warns += .point_to_line("WARNING: Possible Recursion", ((m[1])[1]) + 2, ((m[1])[2]) - 2, l, line);
+        refresh();
     }
     return warns;
 };

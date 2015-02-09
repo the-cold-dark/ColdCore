@@ -6,6 +6,7 @@ var $command_cache modules = [];
 var $command_cache shortcuts = 0;
 var $described prose = <$ctext_frob, [[<$format, ["p", [], [], 'do_p]>, "Sometimes, a few hints may be added to an object's name, in order to make it easier to refer to. These hints are called Name Templates, because they use a different sort of matching than Names. ", <$format, ["np", [], [], 'do_np]>, "When you see a name template, it may have a question mark in the word ('", <$format, ["tt", [], ["?"], 'do_tt]>, "'), and multiple words may be joined together with the pipe character ('", <$format, ["tt", [], ["|"], 'do_tt]>, "'). The question mark signifies that anything beyond that point in the word is optional. For instance, if the name template 'e?ast' were given, you could type 'e', 'ea', 'eas', and 'east'. ", <$format, ["np", [], [], 'do_np]>, "The pipe character is used to specify possible alternatives, and is equivalent to saying the template can match the first word, or the second word, or the third, and so on. For instance, the template 'east|out' would match both 'east' or 'out'. ", <$format, ["np", [], [], 'do_np]>, "More information is available on how User Names work."], #[]]>;
 var $dmi_data descriptions = #[];
+var $event_handler hooked = #[];
 var $event_handler hooks = #[];
 var $has_commands local = #[];
 var $has_commands remote = #[];

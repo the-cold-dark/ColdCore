@@ -9,7 +9,7 @@ var $registry reserved_names = ["user", "builder", "programmer", "admin", "house
 var $registry stripped = 1;
 var $registry stripped_characters = "!@#$%^&*()_+-=~`'{}[]|/?\",.<>;: ";
 var $root created_on = 796268969;
-var $root flags = ['methods, 'code, 'core];
+var $root flags = ['methods, 'code, 'core, 'variables];
 var $root inited = 1;
 var $root managed = [$user_db];
 var $root manager = $user_db;

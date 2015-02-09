@@ -1,7 +1,9 @@
 
 new object $settings_ui: $user_interfaces;
 
+var $command_cache commands = 0;
 var $command_cache modules = [];
+var $command_cache shortcuts = 0;
 var $has_commands local = \
   #[["@set?tings", [["@set?tings", "on|from *", "@set?tings on|from <object reference>", 'settings_on_cmd, #[[2, ['objref, []]]]]]],\
   ["@set|@setting?s",\

@@ -8,7 +8,7 @@ var $help_node links = #[];
 var $help_node nolist = 0;
 var $help_updates cleanup_time = 2592000;
 var $help_updates dirty = 2;
-var $help_updates update_list = [[935820000, [$help_theme]]];
+var $help_updates update_list = [[1011855600, [$help_theme]]];
 var $root created_on = 848537316;
 var $root flags = ['variables, 'methods, 'code, 'core];
 var $root inited = 1;
@@ -17,7 +17,7 @@ var $root manager = $help_updates;
 var $root trusted = [$help_node];
 
 public method .body() {
-    var i, j, out, body;
+    var i, j, out, body, cleaned;
     
     body = pass();
     if (dirty || (!body)) {
@@ -26,7 +26,11 @@ public method .body() {
         } else {
             out = ["{dl:"];
             for i in (update_list) {
-                j = map j in (i[2]) to ([j.name(), "" + j]).sort();
+                // sometimes help nodes which are deleted end up in this list..
+                cleaned = filter j in (i[2]) where (valid(j));
+    
+                // now use the cleaned version...
+                j = map j in (cleaned) to ([j.name(), "" + j]).sort();
                 out += [((("{dt:" + ($time.format("%d-%b-%Y", i[1]))) + "}{dd:") + (map j in (j) to (strfmt("{link node=%l:%l}", j[2], j[1])).to_english())) + "}"];
             }
             out += ["}"];

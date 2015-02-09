@@ -1,7 +1,9 @@
 
 new object $dmi_data_ui: $user_interfaces;
 
+var $command_cache commands = 0;
 var $command_cache modules = [];
+var $command_cache shortcuts = 0;
 var $dmi_data descriptions = #[];
 var $has_commands local = \
   #[["@verbal-index", [["@verbal-index", "", "@verbal-index", 'verbal_index_cmd, #[]]]], ["@dmethod", [["@dmethod", "*", "@dmethod <objref>", 'describe_method_english_cmd, #[[1, ['objref, []]]]]]],\

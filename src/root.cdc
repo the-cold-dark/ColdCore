@@ -338,8 +338,7 @@ public method .ancestry(): nooverride  {
 public method .as_this_run() {
     arg obj, method, args;
     
-    if (!((caller() == $scheduler) || (caller().is($http_interface))))
-        throw(~perm, "Sender not allowed to gain access to object perms.");
+    (caller().is($http_interface)) || (> .perms(caller(), $scheduler, $page_set) <);
     return (> obj.(method)(@args) <);
 };
 
@@ -440,7 +439,7 @@ root method .change_parents(): nooverride  {
             if (definer != a) {
                 // scream madly and run around--everybody should know this
                 // (damn inlaws, can't ever get things right)
-                str = "INIT ERROR: uninit method for " + a;
+                str = "INIT ERROR: init method for " + a;
                 str += (" in wrong place (" + definer) + ")";
                 (| (definer.manager()).tell(str) |);
                 (| (a.manager()).tell(str) |);
@@ -706,7 +705,7 @@ root method .del_managed_obj(): nooverride  {
         clear_var('managed);
 };
 
-public method .del_method() {
+public method .del_method(): nooverride  {
     arg name;
     
     (> .perms(sender()) <);
@@ -1229,6 +1228,7 @@ public method .method_access(): nooverride  {
 public method .method_bytecode() {
     arg method;
     
+    return 'no;
     return (> method_bytecode(method) <);
 };
 
@@ -1839,7 +1839,6 @@ public method .writers(): nooverride  {
 };
 
 public method .writes(): nooverride  {
-    (> .perms(sender(), 'trusts) <);
     return writes || [];
 };
 

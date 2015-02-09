@@ -99,7 +99,7 @@ public method .format_rfc822() {
         for x in (.meta())
             out += [((x[1]) + ": ") + (x[2])];
     } else {
-        out = ["Date: " + ($time.format("%a, %e %b %Y %T %Z", .time()))];
+        out = ["Date: " + ($time.format("%a, %e %b %Y %H:%M:%S %Z", .time()))];
         out += ["From: " + ($smtp.get_email_address(.from()))];
         out += ["To: " + (((.recipients()).omap($smtp, 'get_email_address)).join(", "))];
         out += [((("Message-ID: <" + (.unique_id())) + "@") + ($sys.server_info('server_hostname))) + ">"];

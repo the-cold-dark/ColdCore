@@ -138,7 +138,7 @@ protected method .pass_cmd() {
     (> .check_state("USER", 'authorization) <);
     if (!maildrop)
         throw(~stop, "-ERR issue USER command first");
-    if (maildrop.check_password(argstr)) {
+    if ($security_lib.check_password(maildrop, argstr)) {
         catch any
             mail_objects = maildrop.mail();
         with

@@ -454,7 +454,7 @@ public method .sendmail() {
         from = 'postmaster;
     if (type(from) == 'symbol)
         from = .get_email_address(from);
-    header = ["Date: " + ($time.format("%a, %d %b %Y %T %Z")), "From: " + from, "To: " + recip, "Subject: " + subj, "Errors-to: " + (.get_email_address('postmaster)), "X-Mail-Agent: " + mailagent];
+    header = ["Date: " + ($time.format("%a, %d %b %Y %H:%M:%S %Z")), "From: " + from, "To: " + recip, "Subject: " + subj, "Errors-to: " + (.get_email_address('postmaster)), "X-Mail-Agent: " + mailagent];
     
     // connect to maildrop
     c = (> .connect_to_smtp_host(maildrop) <);

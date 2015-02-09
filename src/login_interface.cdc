@@ -30,7 +30,7 @@ protected method .connect_cmd() {
     passwd = args[args.length()];
     name = (args.subrange(1, (args.length()) - 1)).join();
     user = (| $user_db.search(name) |) || (> .tell_error(syn, stderr) <);
-    if (!(user.check_password(passwd, (.connection()).address())))
+    if (!($security_lib.check_password(user, passwd, (.connection()).address())))
         (> .tell_error(syn, stderr) <);
     if ($sys.user_denied(user)) {
         .print(("Access to user " + (user.namef('ref))) + " is currently denied.");

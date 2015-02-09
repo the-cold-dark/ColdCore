@@ -11,8 +11,18 @@ var $root manager = $page_root_index;
 
 public method .generate() {
     arg headers, info, args;
+    var a, r;
     
-    return [$motd.build_html()];
+    if (dict_contains(args, "login")) {
+        // setup to handle root-level 'domain' login
+        if (dict_contains(info, 'run_as)) {
+            r = (| args["login"] |) || "/desktop/";
+            return ['redirect, r];
+        } else {
+            return ['auth, ['basic, $directories.get_realm()]];
+        }
+    }
+    return ['redirect, "/motd/"];
 };
 
 

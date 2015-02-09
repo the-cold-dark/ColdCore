@@ -11,6 +11,6 @@ var $root flags = ['variables, 'methods, 'code, 'core];
 var $root inited = 1;
 var $root managed = [$weather_hot];
 var $root manager = $weather_hot;
-var $root settings = #[["attributes", [5, 3, 4, 3, 3, 2]]];
+var $root settings = #[["attributes", [1, 2, 1, 1, 1, 1]]];
 
 

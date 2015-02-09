@@ -57,7 +57,7 @@ public method .do_detail() {
     var det;
     
     det = flags.getkey("name");
-    return [.build_link_tag("look " + det, det), vars];
+    return [.build_link_tag("look at " + det, det), vars];
 };
 
 public method .do_link() {

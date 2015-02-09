@@ -33,10 +33,12 @@ var $has_commands local = \
     [["@quota", "* to *", "@quota <object> to <any:+e?xempt>", 'quota_cmd, #[[1, ['object, []]], [3, ['any_opt, ["e?xempt"]]]]]]],\
   ["@kick",\
     [["@kick", "*", "@kick <any>", 'kick_cmd, #[[1, ['any, []]]]]]],\
-  ["@chman?age",\
-    [["@chman?age", "*", "@chman?age <any>", 'chmanage_cmd, #[[1, ['any, []]]]]]],\
   ["@scour",\
-    [["@scour", "*", "@scour <any>", 'scour_cmd, #[[1, ['any, []]]]]]]];
+    [["@scour", "*", "@scour <any>", 'scour_cmd, #[[1, ['any, []]]]]]],\
+  ["@cache-stats",\
+    [["@cache-stats", "*", "@cache-stats <any>", 'cache_stats_cmd, #[[1, ['any, []]]]]]],\
+  ["@users",\
+    [["@users", "", "@users", 'user_breakdown_cmd, #[]]]]];
 var $has_name name = ['prop, "Generic Admin", "Generic Admin"];
 var $located location = $body_cave;
 var $located obvious = 1;
@@ -69,6 +71,34 @@ var $user parsers = [$command_parser];
 var $user password = "*";
 var $user task_connections = #[];
 
+protected method .__cache_stats_display() {
+    arg cache_stats_type;
+    var cache_stats_data, headers, output, title;
+    
+    catch ~type {
+        // If you are using Genesis 1.2, decomment this
+        //      cache_stats_data = cache_stats(cache_stats_type);
+        cache_stats_data = [];
+    } with {
+        return .tell(("Invalid cache type (" + toliteral(cache_stats_type)) + ") specified.");
+    }
+    if ((cache_stats_type == 'method_cache) || (cache_stats_type == 'ancestor_cache)) {
+        if (cache_stats_type == 'method_cache)
+            title = "Method Cache:";
+        else
+            title = "Ancestor Cache:";
+        headers = [["Generation", "----------"], ["Hits", "----"], ["Misses", "------"], ["Partial Invalidations", "---------------------"]];
+        cache_stats_data = cache_stats_data.transpose();
+    } else if (cache_stats_type == 'name_cache) {
+        title = "Name Cache:";
+        headers = [["Hits", "----"], ["Misses", "------"]];
+        cache_stats_data = [[cache_stats_data[1]], [cache_stats_data[2]]];
+    }
+    output = cache_stats_data.tabulate(headers);
+    .tell(title);
+    .tell(output);
+};
+
 private method ._reap__list() {
     arg thresh;
     var t, reap, u, tl, m, v, n, last;
@@ -77,6 +107,7 @@ private method ._reap__list() {
     reap = [];
     .tell([("--- Reap Possibilities (Not connected for " + ($time.to_english(thresh))) + ")", strfmt("E %21L %3l %10l %10l %10l %l", "User", "MNG", "Created", "Notified", "Last On", "Idle"), strfmt("- %21L %3l %10l %10l %10l %l", "----", "---", "-------", "-------", "-------", "----")]);
     for u in ($user.descendants()) {
+        pause();
         if ((u.connected()) || ((u.has_flag('core)) || (u.is($admin))))
             continue;
         tl = (last = abs(u.connected_at()));
@@ -159,14 +190,24 @@ private method ._reap__user() {
         return "Aborting reap.";
     managed = setremove(user.managed(), user);
     nuke = (keep = []);
-    reapq = ["", ("Reap this object managed by " + (user.namef('ref))) + "? [yes] "];
-    for obj in (managed) {
-        .tell("");
-        .tell($object_lib.format_object(obj, 0));
-        if ((> $parse_lib.ask(reapq, "(yes|y)", "yes") <))
-            nuke = setadd(nuke, obj);
-        else
-            keep = setadd(keep, obj);
+    if (managed) {
+        .tell(["", (((user.namef('ref)) + " has ") + (managed.length())) + " object(s)."]);
+        reapq = ["Scan this list item by item? [yes] "];
+        if ((> $parse_lib.ask(reapq, "(yes|y)", "yes") <)) {
+            reapq = ["", ("Reap this object managed by " + (user.namef('ref))) + "? [yes] "];
+            for obj in (managed) {
+                .tell("");
+                .tell($object_lib.format_object(obj, 0));
+                if ((> $parse_lib.ask(reapq, "(yes|y)", "yes") <))
+                    nuke = setadd(nuke, obj);
+                else
+                    keep = setadd(keep, obj);
+            }
+        } else {
+            nuke = managed;
+        }
+    } else {
+        .tell(("User " + (user.namef('ref))) + " owns no objects");
     }
     if (nuke) {
         .tell(["WRT TST Object", "--- --- ------"]);
@@ -177,7 +218,7 @@ private method ._reap__user() {
             for obj in (nuke) {
                 // must have been nuked already
                 if (!valid(obj))
-                    next;
+                    continue;
                 name = obj.namef('ref);
                 catch any {
                     obj.destroy();
@@ -269,6 +310,39 @@ protected method .backup_cmd() {
     .tell("Done.");
 };
 
+protected method .cache_stats_cmd() {
+    arg cmdline, cmd, @args;
+    var opt, want_all, done;
+    
+    opt = (> $parse_lib.opt(args.join(" "), "m?ethods", "n?ame", "a?ncestor", "all") <);
+    if ("all" in ((opt[2]).slice(1)))
+        want_all = 1;
+    if (want_all || ("m?ethods" in ((opt[2]).slice(1)))) {
+        .__cache_stats_display('method_cache);
+        done++;
+    }
+    if (want_all || ("n?ame" in ((opt[2]).slice(1)))) {
+        if (done)
+            .tell("");
+        .__cache_stats_display('name_cache);
+        done++;
+    }
+    if (want_all || ("a?ncestor" in ((opt[2]).slice(1)))) {
+        if (done)
+            .tell("");
+        .__cache_stats_display('ancestor_cache);
+        done++;
+    }
+    if (!done) {
+        .tell("You can get driver cache statistics for:");
+        .tell("  * Method cache (+m?ethods)");
+        .tell("  * Name cache (+n?ame)");
+        .tell("  * Ancestor cache (+a?ncestor)");
+        .tell("  * All caches (+all)");
+    }
+    .tell("---");
+};
+
 protected method .check_mojo() {
     arg @benice;
     var answer, wording;
@@ -287,25 +361,6 @@ protected method .check_mojo() {
         }
         .mojo_cmd("", "", "on");
     }
-};
-
-protected method .chmanage_cmd() {
-    arg cmdstr, cmd, args;
-    var obj, manager;
-    
-    (> .perms(caller(), 'command) <);
-    args = (args.replace(" to ", " ")).explode();
-    if ((!args) || ((args.length()) != 2))
-        (> .tell_error(cmd + " <object> [to] <user>") <);
-    obj = .match_env_nice(args[1]);
-    manager = .match_env_nice(args[2]);
-    if ((!(manager.is($user))) && (!(.is($admin))))
-        return "Sorry you can only set users as managers.";
-    catch any
-        (> obj.change_manager(manager) <);
-    with
-        return (traceback()[1])[2];
-    return ((("Manager on " + (obj.namef('xref))) + " changed to ") + (manager.namef('xref))) + ".";
 };
 
 protected method .core_cmd() {
@@ -378,7 +433,7 @@ protected method .finger_cmd() {
     if (who.connected()) {
         out += ["  Connections:"];
         for tmp in (who.connections())
-            out += [(((("    " + tmp) + ": [") + ($time.format("%d-%b-%Y/%T", tmp.active_since()))) + "] ") + (tmp.address())];
+            out += [(((("    " + tmp) + ": [") + ($time.format("%d-%b-%Y/%H:%M:%S", tmp.active_since()))) + "] ") + (tmp.address())];
     }
     tmp = who.quota_byte_usage();
     return (out += ["  Quota:", "    Total:     " + ((who.quota()).to_english()), "    Used:      " + (tmp.to_english()), "    Remaining: " + (((who.quota()) - tmp).to_english())]);
@@ -398,16 +453,17 @@ root method .init_admin() {
 
 public method .kick_cmd() {
     arg cmdstr, cmd, user;
-    var x, u;
+    var x, u, uname;
     
     (> .check_mojo() <);
     catch ~namenf {
         u = $user_db.match(user);
+        uname = u.name();
         u.tell((sender().name()) + " has kicked you from the system.");
         pause();
         for x in (u.connections())
             x.destroy();
-        sender().tell((u.name()) + " has been kicked from the system.");
+        sender().tell(uname + " has been kicked from the system.");
     } with {
         sender().tell(("Usage: " + cmd) + " <player name>.");
     }
@@ -606,39 +662,42 @@ protected method .rehash_all_cmd() {
     // go atomic, we do not want confused users trying to run commands that
     // do not exist...
     $sys.atomic(1);
+    catch any {
+        // purge everything
+        if ((o = (| "p?urge" in ((args[2]).slice(1)) |)))
+            purge = ((args[2])[0])[3];
+        else
+            purge = 1;
+        if (purge) {
+            .tell("Purging caches..");
+            for o in ($command_cache.descendants()) {
+                (| o.purge_cache() |);
+                refresh();
+            }
+        }
     
-    // purge everything
-    if ((o = (| "p?urge" in ((args[2]).slice(1)) |)))
-        purge = ((args[2])[0])[3];
-    else
-        purge = 1;
-    if (purge) {
-        .tell("Purging caches..");
-        for o in ($command_cache.descendants()) {
-            (| o.purge_cache() |);
+        // rehash non-general caches
+        list = ($command_cache.children()).setremove($user_interfaces);
+        list = ((list.mmap('descendants)).flatten()).compress();
+        .tell(("Rehashing " + listlen(list)) + " general caches.");
+        for o in (list) {
+            if (!(o.is_general_cache())) {
+                (| o.rehash_cache() |);
+                refresh();
+            }
+        }
+        $remote_cache.rehash_cache();
+    
+        // re-init user clients
+        objs = (| $user_db.connected() |) || [this()];
+        list = hash o in (objs) to ([(| o.location() |) || $void, 1]);
+        for o in (objs + dict_keys(list)) {
+            .tell("Initializing " + (o.namef('ref)));
+            o.cache_client_init();
             refresh();
         }
-    }
-    
-    // rehash non-general caches
-    list = ($command_cache.children()).setremove($user_interfaces);
-    list = ((list.mmap('descendants)).flatten()).compress();
-    .tell(("Rehashing " + listlen(list)) + " general caches.");
-    for o in (list) {
-        if (!(o.is_general_cache())) {
-            (| o.rehash_cache() |);
-            refresh();
-        }
-    }
-    $remote_cache.rehash_cache();
-    
-    // re-init user clients
-    objs = (| $user_db.connected() |) || [this()];
-    list = hash o in (objs) to ([(| o.location() |) || $void, 1]);
-    for o in (objs + dict_keys(list)) {
-        .tell("Initializing " + (o.namef('ref)));
-        o.cache_client_init();
-        refresh();
+    } with {
+        .tell_traceback(traceback());
     }
     
     // ok, good...
@@ -873,7 +932,7 @@ protected method .tasks_cmd() {
     }
     queue = $scheduler.task_queue();
     if (queue) {
-        tfmt = "%d %h %y %H:%M:%S";
+        tfmt = "%d %b %y %H:%M:%S";
         fmt = "%5L %20L %s";
         time = $time.format(tfmt);
         out = [strfmt(fmt, "ID", "EXEC TIME", "TASK"), strfmt(fmt, "---", "---------", "----")];
@@ -890,6 +949,7 @@ protected method .tasks_cmd() {
         preempt = [];
         fmt = "%8l%8l%24L";
         for task in (queue) {
+            refresh();
             info = $scheduler.task_info(task);
             line = strfmt(fmt, (info[1])[1], (info[3])[7], ((((info[3])[1]) + ".") + ((info[3])[8])) + "()", (info[3])[4]);
             catch any {

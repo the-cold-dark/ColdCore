@@ -27,12 +27,6 @@ var $has_commands local = \
     [["spoof", "*", "spoof <any>", 'spoof_cmd, #[[1, ['any, []]]]]]],\
   ["think",\
     [["think", "*", "think <any>", 'think_cmd, #[[1, ['any, []]]]]]],\
-  ["wear",\
-    [["wear", "*", "wear <any>", 'wear_cmd, #[[1, ['any, []]]]]]],\
-  ["remove|shed",\
-    [["remove|shed", "*", "remove|shed <any>", 'remove_cmd, #[[1, ['any, []]]]]]],\
-  ["@act?ion",\
-    [["@act?ion", "*", "@act?ion <any>", 'action_cmd, #[[1, ['any, []]]]]]],\
   ["pose",\
     [["pose", "*", "pose <any>", 'pose_cmd, #[[1, ['any, []]]]]]],\
   ["get|take",\
@@ -133,10 +127,6 @@ protected method .emote_cmd() {
         (.location()).announce((.name()) + (what.subrange(2)));
     else
         (.location()).announce(((.name()) + " ") + what);
-};
-
-public method .environment() {
-    return pass() + (wearing || []);
 };
 
 protected method .esay_cmd() {
@@ -474,12 +464,18 @@ public method .pose_cmd() {
                 } else {
                     posessive = "";
                 }
-                if (((word[word.length()]) == "*") || (word in ["everyone", "everything"])) {
+    
+                // match_environment had a bug where you could send
+                // nothing, and it would match everything, but no more,
+                // so we need to find another way for this to work.
+                // if (word[word.length()] == "*" || word in ["everyone", "everything"]) {
+                if ((word[word.length()]) == "*") {
                     // look for matching things..
-                    if (word in ["everyone", "everything"]) {
-                        things = word == "everything";
-                        word = "";
-                    } else if (((word.length()) > 1) && ((word[(word.length()) - 1]) == "*")) {
+                    //  if (word in ["everyone", "everything"]) {
+                    //      things = word == "everything";
+                    //      word = "";
+                    //  } else
+                    if (((word.length()) > 1) && ((word[(word.length()) - 1]) == "*")) {
                         // match things too.
                         word = substr(word, 1, (word.length()) - 2);
                         things = 1;
@@ -606,20 +602,6 @@ protected method .quote_cmd() {
     (.location()).announce(((.name()) + " | ") + what);
 };
 
-protected method .remove_cmd() {
-    arg cmd, cmdstr, what;
-    
-    (> .perms(caller(), $user, $body) <);
-    what = (> .match_env_nice(what) <);
-    if (!(what.is($wearable_frob)))
-        return ("You are not wearing " + (what.name())) + ".";
-    catch any
-        what = (> what.shed() <);
-    with
-        return (traceback()[1])[2];
-    return "You remove " + (what.name());
-};
-
 protected method .say_cmd() {
     arg cmdstr, cmd, what;
     var type, how, idx;
@@ -635,8 +617,8 @@ protected method .say_cmd() {
 public method .set_body_part() {
     arg part, frob, param;
     
-    if (sender().has_ancestor($wearable_frob))
-        throw(~perm, "Sender must be $wearable_frob.");
+    if (sender().has_ancestor($wearable))
+        throw(~perm, "Sender must be $wearable.");
     body_parts = body_parts.add(frob.new_with(part, param));
 };
 
@@ -658,11 +640,9 @@ public method .set_last_traceback() {
 };
 
 public method .shed() {
-    arg what;
-    
-    if (caller() != $wearable_frob)
-        throw(~wear, "You can only wear descendants of $wearable_frob.");
-    wearing = setremove(wearing, what);
+    if (caller() != $wearable)
+        throw(~wear, "You can only wear descendants of $wearable.");
+    wearing = setremove(wearing, sender());
 };
 
 protected method .spoof_cmd() {
@@ -732,14 +712,19 @@ public method .tell_realm_announce() {
 
 public method .tell_traceback() {
     arg traceback, @parse;
+    var tb;
     
     if (parse && (| ((parse[2]).find_method(parse[3])).has_flag('core) |))
         $sys.log_traceback(traceback, last_command);
+    
+    // who do we show tracebacks to...
     if (.has_ancestor($sys.get_setting("traceback-for", $sys))) {
         .tell(traceback.fmt_tb());
         .tell(["!", "! You may want to use @report to report this problem."]);
     } else {
-        .tell("OOPS! An error has occurred, contact an administrator for help.");
+        .tell("OOPS! An error has occurred: " + ((traceback[1])[2]));
+        .tell("You can view the full error with @traceback");
+        .tell("You may want to use @report to report this problem.");
     }
 };
 
@@ -774,34 +759,15 @@ protected method .to_say_cmd() {
 };
 
 public method .wear() {
-    arg what;
-    
-    if (caller() != $wearable_frob)
-        throw(~wear, "You can only wear descendants of $wearable_frob.");
-    wearing = setadd(wearing || [], what);
-};
-
-protected method .wear_cmd() {
-    arg cmd, cmdstr, what;
-    
-    (> .perms(caller(), $user, $body) <);
-    what = (> .match_env_nice(what) <);
-    if (!(what.is($wearable_frob)))
-        return ("You cannot wear " + (what.name())) + ".";
-    what = (> what.wear() <);
-    return "You wear " + (what.name());
+    if (caller() != $wearable)
+        throw(~wear, "You can only wear descendants of $wearable.");
+    wearing = setadd(wearing || [], sender());
 };
 
 public method .wearing() {
     arg @args;
-    var x, w;
     
-    w = wearing || [];
-    if (args && ('objects in args)) {
-        for x in [1 .. w.length()]
-            w = w.replace(x, class(w[x]));
-    }
-    return w;
+    return wearing || [];
 };
 
 protected method .whisper_cmd() {

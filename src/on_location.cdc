@@ -18,6 +18,17 @@ var $root managed = [$on_location];
 var $root manager = $on_location;
 var $thing gender = $gender_neuter;
 
+public method .announce() {
+    arg what, @except;
+    var loc;
+    
+    pass(what, @except);
+    loc = .location();
+    loc.announce(what, @except, this());
+    if (!(loc in except))
+        (| loc.tell(what) |);
+};
+
 public method .description() {
     arg flags;
     var line;

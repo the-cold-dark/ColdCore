@@ -9,7 +9,7 @@ var $root flags = ['variables, 'methods, 'code, 'core];
 var $root inited = 1;
 var $root managed = [$smtp_daemon];
 var $root manager = $smtp_daemon;
-var $smtp_daemon msg_id = 352;
+var $smtp_daemon msg_id = 411;
 
 public method .get_msg_id() {
     msg_id++;

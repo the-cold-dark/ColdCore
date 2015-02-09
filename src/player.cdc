@@ -4,9 +4,7 @@ new object $player: $user;
 var $channel_ui active_channels = #[];
 var $channel_ui channel_dict = #[];
 var $command_aliases command_aliases = [];
-var $command_cache commands = 0;
 var $command_cache modules = [];
-var $command_cache shortcuts = 0;
 var $described prose = [];
 var $has_commands local = \
   #[["@sheet|@score", [["@sheet|@score", "*", "@sheet|@score <any>", 'sheet_cmd, #[[1, ['any, []]]]]]],\
@@ -204,7 +202,7 @@ public method .new_character_cmd() {
     .move_to($nowhere);
     .add_parser($chargen_parser);
     .tell("** Raw character generation subsystem, will get better later");
-    .tell("** Based off En Requiem: http://web.roguetrader.com/EnRequime/rules");
+    .tell("** Based off En Requiem: http://web.roguetrader.com/EnRequiem/");
     .tell("** type 'help' for help");
 };
 

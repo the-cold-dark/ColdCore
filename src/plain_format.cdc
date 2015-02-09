@@ -395,9 +395,18 @@ public method .do_ul() {
 
 public method .do_web() {
     arg vars, flags, args;
+    var href, src, listen;
     
     [args, vars] = ._eval_ctext(args, vars);
-    return [((((args + "<") + (flags.getkey("name"))) + ":") + (flags.getkey("src"))) + ">", vars];
+    src = flags.getkey("src");
+    if ((!match_begin(src, "http")) && (!match_begin(src, "ftp"))) {
+        href = "http://" + ($sys.server_info('server_hostname));
+        listen = ($http_daemon.get_setting("listen", $daemon)).slice(1);
+        if (!listidx(listen, 80))
+            href += ":" + (listen[1]);
+        src = href + src;
+    }
+    return [((args + " <") + src) + ">", vars];
 };
 
 public method .eval_indented() {

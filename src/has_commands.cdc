@@ -133,6 +133,11 @@ public method .del_shortcut() {
     var value;
     
     (> .perms(sender()) <);
+    
+    // remove the cards, just use the raw template
+    shortcut = strsed("-%1 %2", "%[0-9]+", "*");
+    
+    // delete it...
     value = (| shortcuts.del(shortcut) |);
     if (type(value) != 'dictionary)
         throw(~shortcutnf, ("Shortcut \"" + shortcut) + "\" is not defined on this object.");

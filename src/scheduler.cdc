@@ -12,7 +12,7 @@ var $scheduler expected_lag = 0;
 var $scheduler server_lag = 0;
 var $scheduler sub_schedulers = [$heart];
 var $scheduler suspended_tasks = #[];
-var $scheduler task_index = 1;
+var $scheduler task_index = 2;
 var $scheduler task_queue = [];
 
 public method .add_sub_scheduler() {
@@ -70,23 +70,29 @@ public method .block_task() {
     blocked_tasks = blocked_tasks.add(ident, tasks);
     
     // And go to sleep until we are woken.
-    $sys.suspend();
+    return (> suspend() <);
 };
 
 public method .cancel() {
     arg task_id;
     var objs;
     
+    // suspended tasks
     if ((objs = (| suspended_tasks[task_id] |))) {
         if ((!(sender() in objs)) && (!($sys.is_system(sender()))))
             throw(~perm, (sender() + " may not cancel task ") + task_id);
         suspended_tasks = dict_del(suspended_tasks, task_id);
+    
+        // preempted tasks 
+    } else if (!($sys.is_system(sender()))) {
+        throw(~perm, (sender() + " may not kill task ") + task_id);
     }
     return (> cancel(task_id) <);
 };
 
 root method .core_scheduler() {
     suspended_tasks = #[];
+    blocked_tasks = #[];
     task_queue = [];
 };
 
@@ -279,7 +285,7 @@ public method .unblock_task() {
         blocked_tasks = blocked_tasks.add(ident, tasks.delete(1));
     
     // Wake it up and go.
-    $sys.resume(tasks[1]);
+    resume(tasks[1]);
 };
 
 

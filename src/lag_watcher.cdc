@@ -2,7 +2,7 @@
 new object $lag_watcher: $utilities;
 
 var $lag_watcher lags = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-var $lag_watcher last_time = 935864056;
+var $lag_watcher last_time = 1011937114;
 var $root created_on = 796268969;
 var $root flags = ['methods, 'code, 'variables, 'core];
 var $root inited = 1;

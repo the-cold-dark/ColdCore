@@ -98,7 +98,7 @@ public method .do_detail() {
     var det;
     
     det = flags.getkey("name");
-    return [((((("<a href=\"/bin/describe?target=" + ((vars['this]).objname())) + "&detail=") + ($http.encode(det))) + "\">") + det) + "</a></b>", vars];
+    return [((((("<a href=\"/bin/describe?target=" + ((vars['this]).objname())) + "&detail=") + ($http.encode(det))) + "\">") + det) + "</a>", vars];
 };
 
 public method .do_dfn() {
@@ -218,7 +218,7 @@ public method .do_np() {
 
 public method .do_obj() {
     arg vars, flags, args;
-    var gateway, argname, context, object, name, options;
+    var href, context, object, name, options;
     
     context = flags.getkey("context");
     options = (| flags.getkey("options") |);
@@ -232,20 +232,17 @@ public method .do_obj() {
         return [name.to_html(), vars];
     switch (context) {
         case 'look:
-            if (options) {
-                if (options == 'exit) {
-                    [gateway, argname] = ["describe", "target"];
-                    object = object.dest(args[2]);
-                } else {
-                    [gateway, argname] = ["describe", "target"];
-                }
-            } else {
-                [gateway, argname] = ["describe", "target"];
-            }
-        case 'display:
-            [gateway, argname] = ["display", "target"];
+            href = "/bin/describe?target=";
+            if (options == 'exit)
+                object = object.dest(args[2]);
+        case 'set:
+            href = "/set/set_list?target=";
+        default:
+            href = "/bin/display?target=";
     }
-    return ["<a href=\"/bin/%s?%s=%s\">%s</a>".format(gateway, argname.to_html(), toliteral(object).to_html(), name.to_html()), vars];
+    object = toliteral(object).to_html();
+    name = name.to_html();
+    return [(((("<a href=\"" + href) + object) + "\">") + name) + "</a>", vars];
 };
 
 public method .do_ol() {
@@ -365,9 +362,18 @@ public method .do_ul() {
 
 public method .do_web() {
     arg vars, flags, args;
+    var src, href, listen;
     
     [args, vars] = ._eval_ctext(args, vars);
-    return [((((args + "<a href=\"") + (flags.getkey("src"))) + "\">") + (flags.getkey("name"))) + "</a>", vars];
+    src = flags.getkey("src");
+    if ((!match_begin(src, "http")) && (!match_begin(src, "ftp"))) {
+        href = "http://" + ($sys.server_info('server_hostname));
+        listen = ($http_daemon.get_setting("listen", $daemon)).slice(1);
+        if (!listidx(listen, 80))
+            href += ":" + (listen[1]);
+        src = href + src;
+    }
+    return [((("<a href=\"" + src) + "\">") + args) + "</a>", vars];
 };
 
 public method .eval_formatter() {
@@ -394,7 +400,7 @@ public method .format() {
     return str_to_buf(str + "\n");
     if ((strlen(str) < 2) || (substr(str, strlen(str) - 1) != "\n"))
         str += "\n";
-    return str_to_buf(str + "<br>");
+    return str_to_buf(str + "<br>\n");
 };
 
 

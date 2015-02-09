@@ -29,6 +29,87 @@ public method .alphabet() {
     return alphabet;
 };
 
+public method .ansi_wrap_line() {
+    arg str, len, @stuff;
+    var output, cutoff, firstline, prefix, plen, x, ansilist, lengthvals, counter, elem, wordlist, wordsum, flag;
+    
+    // Thanks Scott for letting me port this back from TEC.
+    //   - Bruce
+    // takes string and wraps it by words, compared to length, returns a list. 
+    [(prefix ?= ""), (firstline ?= 0)] = stuff;
+    output = "";
+    if (firstline)
+        str = prefix + str;
+    plen = strlen(prefix);
+    while (strlen(str) > len) {
+        refresh();
+        flag = "\n";
+        counter = 0;
+    
+        // Check for ansi codes first
+        ansilist = .weed_ansi(str);
+    
+        // If there are ansi codes, do the spiel, otherwise do a regular
+        // line wrap (this can happen on a segment by segment basis)
+        if (listlen(ansilist) > 1) {
+            // create a word-only list w/o the ansi codes, and a letter-count
+            // list both for the entire list and for the word-only list
+            lengthvals = map x in (ansilist) to (strlen(x));
+            wordlist = ansilist.odds();
+            wordsum = map x in (wordlist) to (strlen(x)).sum();
+    
+            // wordsum = lengthvals.odds().sum();
+            // if the letter-count for the word-only list is greater than the 
+            // line length, then we'll need to hack it up, otherwise, we'll
+            // just use the length of the entire line, codes and all
+            if (wordsum > len) {
+                // We've got too many letters. Have to find out where in
+                // the word (non-ansi-code) part of the string the len is.
+                // we mark its spot in the master list, but only count its
+                // letter value if it's really a word. We also need to
+                // remember how many letters we've gone through before
+                // possibly hitting a big chunk of string (counter).
+                elem = find x in (ansilist) where ((x in wordlist) && ((counter += strlen(x)) > len));
+                if (elem)
+                    counter -= strlen(x);
+    
+                // Going to establish where to cut the string. Take the
+                // sum of the letter-count list up to the marker we just found
+                cutoff = (lengthvals.subrange(1, elem - 1)).sum();
+    
+                // We already know the string is too long for a line, or we
+                // wouldn't be here. If the counter is less than our line length
+                // it probably means the next element was too long to add, 
+                // (a big chunk of string with no codes) so we'll tack on the
+                // len - our counter value.
+                if (counter < len)
+                    cutoff += len - counter;
+                cutoff = stridx(substr(str, 1, cutoff), " ", -1);
+            } else {
+                cutoff = lengthvals.sum();
+                flag = "";
+            }
+        } else {
+            cutoff = stridx(substr(str, 1, len), " ", -1);
+        }
+    
+        // The rest of this has been tweaked slightly. The main goal was to
+        // get cutoff vals that this section of the code will be happy with.
+        if (cutoff <= plen) {
+            output += "\n" + substr(str, 1, len);
+            str = prefix + substr(str, len + 1);
+        } else {
+            output += "\n" + substr(str, 1, cutoff);
+            str = prefix + substr(str, cutoff + 1);
+        }
+    }
+    
+    // Here's the tweak and the pain in the ass I'd like solved. When the
+    // length of the word value of the string matches the line length, the
+    // extra "\n" a the end causes extra spacing for .atelln()
+    return (output ? ((output.subrange(3)) + flag) : "") + str;
+};
+
 public method .capitalize(): native;
 
 public method .center() {
@@ -537,6 +618,12 @@ public method .to_symbol() {
     return (> tosym(str) <);
 };
 
+public method .toliteral() {
+    arg @args;
+    
+    return toliteral(@args);
+};
+
 public method .trim(): native;
 
 public method .unquote() {
@@ -553,6 +640,12 @@ public method .valid_ident() {
     arg str;
     
     return strsed(str, "[^a-z0-9_]+", "", "g") == str;
+};
+
+public method .weed_ansi() {
+    arg str;
+    
+    return str.global_regexp("\\\A[0-9]*(;[0-9]*)*[a-zA-Z]");
 };
 
 public method .word(): native;

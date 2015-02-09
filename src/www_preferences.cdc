@@ -1,7 +1,9 @@
 
 new object $www_preferences: $user_interfaces;
 
+var $command_cache commands = 0;
 var $command_cache modules = [];
+var $command_cache shortcuts = 0;
 var $dmi_data descriptions = #[];
 var $has_commands local = #[];
 var $has_commands remote = #[];
@@ -17,7 +19,7 @@ var $root settings = #[["www-show-line-num", 0], ["www-show-descriptions", 0], [
 public method .set_www_preferences() {
     arg name, value;
     
-    (> .perms(caller(), $page_web_prefs, this()) <);
+    (> .perms(caller(), this()) <);
     .set_setting(name, $www_preferences, value);
 };
 

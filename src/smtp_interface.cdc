@@ -27,7 +27,7 @@ var $smtp_interface read_header = 0;
 public method .connection_starting() {
     arg addr, port;
     
-    (.connection()).write((("220 " + ($sys.server_info('server_hostname))) + " SMTP ColdMail 1.0/1.0; ") + ($time.format("%a, %d %b %Y %T %Z")));
+    (.connection()).write((("220 " + ($sys.server_info('server_hostname))) + " SMTP ColdMail 1.0/1.0; ") + ($time.format("%a, %d %b %Y %H:%M:%S %Z")));
 };
 
 public method .data_cmd() {

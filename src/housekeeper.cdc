@@ -8,7 +8,7 @@ var $root managed = [$housekeeper];
 var $root manager = $housekeeper;
 
 public method .did_disconnect() {
-    var task_queue, task;
+    var task_queue, task, realm, delay;
     
     if (caller() != $user)
         throw(~perm, "Permission denied");
@@ -18,8 +18,13 @@ public method .did_disconnect() {
         return;
     } else {
         // because of guests
-        if (valid(sender()))
-            $scheduler.add_task(300, 'move_user_home, sender());
+        if (!valid(sender()))
+            return;
+        catch any
+            delay = ((sender().location()).realm()).get_setting("housekeeper-delay", $realm);
+        with
+            delay = 300;
+        $scheduler.add_task(delay, 'move_user_home, sender());
     }
 };
 

@@ -1,7 +1,7 @@
 
 new object $lock_frob: $logic_frob;
 
-var $lock_frob lock_types = [["inside", $inside_lock_frob], ["indirect", $indirect_lock_frob], ["owner", #-1692], ["carry", $carry_lock_frob], ["parent", $parent_lock_frob]];
+var $lock_frob lock_types = [["inside", $inside_lock_frob], ["indirect", $indirect_lock_frob], ["owner", $owner_lock_frob], ["carry", $carry_lock_frob], ["parent", $parent_lock_frob], ["group", $group_lock_frob]];
 var $lock_frob names = 0;
 var $root created_on = 796268969;
 var $root flags = ['methods, 'code, 'variables, 'core];
@@ -71,7 +71,7 @@ public method .parse() {
         if (!lock)
             throw(~parse, "Null object obj_name.");
     
-        // try and match it
+        // try and match it, default to object type
         type = $object_lock_frob;
         for i in (lock_types) {
             if (lock.match_begin((i[1]) + ":")) {
@@ -86,7 +86,7 @@ public method .parse() {
             case "none", "false", "nobody", "no":
                 lock = $false_lock_frob.new();
             default:
-                if ((obj = (| who.match_environment(lock) |)))
+                if ((obj = (| type.parse_value(lock, who) |)))
                     lock = type.new_lock(obj);
                 else
                     throw(~parse, ("Invalid lock tag \"" + lock) + "\"");
@@ -138,6 +138,12 @@ public method .parse() {
             throw(~parse, "Illegal character following right parenthesis.");
         }
     }
+};
+
+public method .parse_value() {
+    arg value, who;
+    
+    return (> who.match_environment(value) <);
 };
 
 public method .set_lock_name() {

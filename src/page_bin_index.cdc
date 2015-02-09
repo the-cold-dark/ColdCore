@@ -1,7 +1,7 @@
 
 new object $page_bin_index: $page;
 
-var $dmi_data descriptions = #[['help, #[['args, #[["node", [[$help_coldcore], [$converters, 'to_help_node, []]]]]]]], ['describe, #[['args, #[["detail", [[""], []]], ["target", [[$the_pit], [$converters, 'to_object, []]]]]]]], ['who, #[['args, #[]]]], ['display, #[['args, #[["target", [[$root], [$converters, 'to_object, []]]], ["methods", [[0], []]], ["vars", [[0], []]], ["helpctext", [[0], []]], ["desc", [[0], []]]]]]], ['object, #[['args, #[["target", [[$root], [$converters, 'to_object, []]]]]]]], ['method, #[['args, #[["target", [[['method, $user, $user, "say_cmd", 0]], [$converters, 'parse_ref, [$foundation, ['method]]]]], ["linenumbers", [[0], [$converters, 'to_boolean, []]]]]]]]];
+var $dmi_data descriptions = #[['help, #[['args, #[["node", [[$help_coldcore], [$converters, 'to_help_node, []]]]]]]], ['who, #[['args, #[]]]], ['display, #[['args, #[["target", [[$root], [$converters, 'to_object, []]]], ["methods", [[0], []]], ["vars", [[0], []]], ["helpctext", [[0], []]], ["desc", [[0], []]]]]]], ['object, #[['args, #[["target", [[$root], [$converters, 'to_object, []]]]]]]], ['method, #[['args, #[["target", [[['method, $user, $user, "say_cmd", 0]], [$converters, 'parse_ref, [$foundation, ['method]]]]], ["linenumbers", [[0], [$converters, 'to_boolean, []]]]]]]], ['describe, #[['args, #[["detail", [[""], []]], ["target", [[$world], [$converters, 'to_object, []]]]]]]]];
 var $page_bin_index gateways = ["describe", "who", "display", "help", "object", "method"];
 var $root created_on = 863765399;
 var $root credit = ["Brad Roberts <braddr@puremagic.com>", "Bruce Mitchener, Jr. <bruce@puremagic.com>"];
@@ -206,6 +206,10 @@ public method .describe() {
     else
         user = $no_one;
     obj = (| args["target"] |);
+    
+    // because lame DMI
+    if (obj == $world)
+        obj = $world.get_setting("starting-place", $world);
     detail = (| args["detail"] |);
     if (detail) {
         detail = $http.decode(detail);
@@ -218,7 +222,7 @@ public method .describe() {
         name = obj.name();
         body = obj.get_description(#[['actor, user]]);
     }
-    return [[@.build_header(header, info, args), body, @.build_footer(header, info, args)]];
+    return [[@.build_header(header, info, args, #[['title, obj.namef('ref)]]), body, @.build_footer(header, info, args)]];
 };
 
 public method .display() {
@@ -240,7 +244,7 @@ public method .display() {
         what = dict_add(what, 'methods, (args["methods"]) == "yes");
     if ((| args["desc"] |))
         what = dict_add(what, 'desc, (args["desc"]) == "yes");
-    return [(.build_header(header, info, args, obj)) + [._show_object(obj, what), .build_footer(header, info, args)]];
+    return (.build_header(header, info, args, #[['title, obj.namef('xref)]])) + [._show_object(obj, what), .build_footer(header, info, args)];
 };
 
 public method .generate() {
@@ -255,7 +259,7 @@ public method .help() {
     var node, head, body, tail, tmp, n, name;
     
     node = (| args["node"] |);
-    head = [@.build_header(header, info, args, "Help: " + (node.node_name())), ("<h2 align=center>" + (node.html_node_name('top))) + "</h2><hr size=1 noshade>"];
+    head = (.build_header(header, info, args, #[['title, "Help: " + (node.node_name())]])) + [("<h2 align=center>" + (node.html_node_name('top))) + "</h2><hr size=1 noshade>"];
     body = node.body();
     if (node.group()) {
         tail = "<p><hr size=1 noshade><p align=center>";
@@ -304,7 +308,7 @@ public method .method() {
         if (linenumbers)
             code = code.numbered_text();
         str_ref = ((obj + ".") + name) + "()";
-        out = [@.build_header(header, info, args, str_ref), ((((("<h1>Method code for " + (._make_string_to_display_href(obj, "&methods=yes"))) + ((def != obj) ? (("&lt;" + (._make_string_to_display_href(def, "&methods=yes"))) + "&gt;") : "")) + ".") + name) + "()") + "</h1>", "<blockquote>"];
+        out = (.build_header(header, info, args, #[['title, str_ref]])) + [((((("<h1>Method code for " + (._make_string_to_display_href(obj, "&methods=yes"))) + ((def != obj) ? (("&lt;" + (._make_string_to_display_href(def, "&methods=yes"))) + "&gt;") : "")) + ".") + name) + "()") + "</h1>", "<blockquote>"];
         strings = linenumbers ? ["no", "off"] : ["yes", "on"];
         out += [strfmt("[<A HREF=\"/bin/method?target=%s&linenumbers=%s\">Turn %s line numbering</A>]", str_ref, @strings)];
         out += ["<hr size=1 noshade width=\"50%\" align=left><pre>"];
@@ -346,7 +350,7 @@ public method .object() {
     var out, obj, o, line, objs, m;
     
     obj = (| args["target"] |);
-    out = [@.build_header(header, info, args, obj.namef('xref)), ("<h1 align=center>" + (._make_display_href(obj, "&methods=1"))) + "</h1>"];
+    out = (.build_header(header, info, args, #[['title, obj.namef('xref)]])) + [("<h1 align=center>" + (._make_display_href(obj, "&methods=1"))) + "</h1>"];
     line = "<p align=center><b>Parent(s)</b>: " + ((| ._make_object_href((obj.parents())[1]) |) || "(none)");
     for o in ((| (obj.parents()).subrange(2) |) || [])
         line += ", " + (._make_object_href(o));
@@ -372,7 +376,7 @@ public method .who() {
     arg headers, info, args;
     var who, namel, names, times, idle, realm, x, cols, out, output, line;
     
-    out = (.build_header(headers, info, args, "Connected users to " + ($motd.server_name()))) + [("<center><h2>Connected users to <i>" + ($motd.server_name())) + "</i></h2></center></head><body><pre>"];
+    out = (.build_header(headers, info, args, #[['title, "Connected Users"]])) + [("<center><h2>Connected users to <i>" + ($motd.server_name())) + "</i></h2></center></head><body><pre>"];
     who = $user_db.connected();
     names = who.mmap('hname);
     namel = [];

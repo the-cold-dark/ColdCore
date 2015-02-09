@@ -48,8 +48,6 @@ protected method .login_notify(): forked  {
     
     (| pass(connection, last) |);
     .tell(["**", "** Welcome to " + ($motd.server_name()), "**"]);
-    if ((msg = $motd.welcome_notes()))
-        .tell((msg.prefix("** ")) + ["**"]);
     .tell(["** If you are new to ColdCore, you may want to enter the Introductory", "** Tutorial by typing:", "**", "**     @tutorial", "**"]);
     msg = ((("GUEST: " + (.name())) + " [") + (connection.address())) + "] ";
     $channel_ui._broadcast('Admin, msg + (.user_info("email")));
@@ -110,12 +108,15 @@ public method .request_cmd() {
     msg += [line + ans];
     .tell("");
     if (ans == "Programmer") {
-        ans = (> .prompt([">> By asking for Programmer permissions, do you agree never to exploit", ">> any problem or security hole which may be found by your or yourself,", ">> and to reveal any problems to the appropriate administration as soon", ">> as possible? [yes] "]) <);
+        ans = (> .prompt([">> By asking for Programmer permissions, do you agree never to exploit", ">> any problem or security hole which may be found by yourself or others,", ">> and to reveal any problems to the appropriate administration as soon", ">> as possible? [yes] "]) <);
         line = "Will not exploit:".pad(22);
-        if ((ans.is_boolean()) != 0)
+        ans = ans.is_boolean();
+        if (ans == 1)
             msg += [line + "yes"];
-        else
+        else if (ans == 0)
             msg += [line + "no"];
+        else
+            return "Invalid response.  Try the command again, and enter \"yes\" or \"no\" in response to the question.";
     }
     mail = $mail_message.new_mail();
     mail.set_subject("New User Request for: " + (.name()));

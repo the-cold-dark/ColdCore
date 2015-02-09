@@ -97,6 +97,47 @@ public method .columnize() {
     return lines;
 };
 
+public method .columnize2() {
+    arg list, cols, @rest;
+    var width, lines, line, separator, linelength, x, handled_length;
+    
+    // turn [...] into ".   .   ."
+    // rest[1]==separator; rest[2]==linelength
+    [(separator ?= "   "), (linelength ?= 78)] = rest;
+    width = (linelength / cols) - (separator.length());
+    lines = [];
+    for x in [1 .. (list.length()) / cols] {
+        line = ((list.subrange((x * cols) - 1, cols)).mmap('pad, width)).join(separator);
+        lines += [line];
+    }
+    handled_length = x * cols;
+    if ((list.length()) != handled_length)
+        lines += [((list.subrange(handled_length + 1)).mmap('pad, width)).join(separator)];
+    return lines;
+};
+
+public method .columnize3() {
+    arg list, cols, @rest;
+    var width, lines, line, separator, linelength, x, handled_length, even_length;
+    
+    // turn [...] into ".   .   ."
+    // rest[1]==separator; rest[2]==linelength
+    [(separator ?= "   "), (linelength ?= 78)] = rest;
+    width = (linelength / cols) - (separator.length());
+    lines = [];
+    handled_length = 1;
+    even_length = (list.length()) / cols;
+    while (handled_length < even_length) {
+        line = ((list.subrange(handled_length, cols)).mmap('pad, width)).join(separator);
+        lines += [line];
+        handled_length += cols;
+        refresh();
+    }
+    if ((list.length()) >= handled_length)
+        lines += [((list.subrange(handled_length)).mmap('pad, width)).join(separator)];
+    return lines;
+};
+
 public method .compress() {
     arg list;
     var x;
@@ -275,6 +316,17 @@ public method .lmap() {
     // call methods for each thing in list on sender()
     s = sender();
     return map x in (list) to (s.(method)(x, @args));
+};
+
+public method .locate() {
+    arg list, value;
+    var idx;
+    
+    return filter idx in [1 .. listlen(list)] where (value == (list[idx]));
+    
+    // Find the index in the list where the value of the element is the value being searched for.  Filter out the zeros so that only valid indices are returned.
+    // [1, 2, 3, 4].locate(5) -> []
+    // [4, 2, 3, 4].locate(4) -> [1, 4]
 };
 
 public method .make() {

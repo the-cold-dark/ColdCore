@@ -1,12 +1,11 @@
 
-new object $motd: $utilities;
+new object $motd: $page;
 
-var $motd connect_help = ["Connection Help", "===============", "", "  Connecting as a guest:  'guest <name> <email>'", "                Example:  'guest John Doe johndoe@domain.com'", "", "   Connecting as a user:  'connect <name> <password>'", "                Example:  'connect John Doe mypassword'", "", " Quitting (this screen):  '@quit'   or   'quit'", "", "Connected Users Listing:  '@who'", "", "        Creating a user:  'create <name> <password> <email@host>'", "                Example:  'connect John Doe mypassword johndoe@domain.com'"];
-var $motd notes = ["", "Due to a disk failure we have reverted to an older copy of the db", "If you had a user but do not now, this is why.", "Sorry!", ""];
+var $motd connect_help = ["Connection Help", "===============", "", "  Connecting as a guest:  'guest <name> <email>'", "                Example:  'guest John Doe johndoe@domain.com'", "", "   Connecting as a user:  'connect <name> <password>'", "                Example:  'connect John Doe mypassword'", "", " Quitting (this screen):  '@quit'   or   'quit'", "", "Connected Users Listing:  '@who'", "", "        Creating a user:  'create <name> <password> <email@host>'", "                Example:  'create John Doe mypassword johndoe@domain.com'"];
+var $motd notes = ["** Welcome to your new ColdCore, use the command 'help' to **", "** learn more about how to connect with the 'create' command **"];
 var $motd server_name = "ColdCore";
 var $motd server_title = "Virtual Community Server";
 var $motd server_url = "http://none:1180/";
-var $motd welcome_notes = [];
 var $root created_on = 796268969;
 var $root defined_settings = #[["server-name", #[['get, ['get_server_name_setting]], ['set, ['set_server_name_setting]]]], ["server-title", #[['get, ['get_server_title_setting]], ['set, ['set_server_title_setting]]]], ["login-sequence", #[['parse, ['is_type, 'list]]]]];
 var $root flags = ['methods, 'code, 'variables, 'core];
@@ -41,7 +40,7 @@ public method .build() {
                 case 'name:
                     output += [(("+ " + server_name) + " +").center(79)];
                 case 'notes:
-                    output += notes.center_lines(79);
+                    output += (notes.center_lines(79)) + [""];
                 case 'quote:
                     output += ($code_lib.random_quote()).center_lines(79);
                 case 'admins:
@@ -72,41 +71,74 @@ public method .build() {
     return output;
 };
 
-public method .build_html() {
-    arg @args;
-    var page, p;
-    
-    // this is your home page, change it as you whim may direct you
-    p = "<p align=center>";
-    page = [("<head><title>" + server_name) + "</title></head>"];
-    page += ["<body bgcolor=\"#000000\" text=\"#ffefef\" link=\"#b000f0\" vlink=\"#9000c0\" alink=\"#f000f0\">"];
-    page += [("<h1 align=center>" + server_name) + "</h1>"];
-    page += [("<h3 align=center>" + server_title) + "</h1>"];
-    page += ([p + "<tt>"] + ($code_lib.random_quote())) + ["</tt>"];
-    page += [p] + notes;
-    page += [(p + "Administrators: ") + ((($sys.admins()).mmap('hname)).to_english())];
-    page += ["<br><a href=\"/bin/who\">Currently Connected users</a>: " + ($user_db.total_connected())];
-    page += [("<br>Server Lag: " + ($lag_watcher.lag())) + " seconds."];
-    page += ["<br>Driver: <b><a href=\"http://www.cold.org/Software/Genesis/\">Genesis</a></b> " + ($sys.server_info('driver_version)), ("<br>Core: <b>" + ($sys.server_info('core_version, 'long))) + "</b>"];
-    
-    // page += ["<p align=center><a href=\"http://" + $sys.server_info('server_hostname) + "/login/\"><b><i>Enter the Cold Dark</i></b></a>"
-    page += ["<p><hr size=1 noshade width=\"50%\"><p align=center><b>"];
-    page += ["<a href=\"http://www.cold.org/Software/ColdCore/newadmin.html\">New Admins Guide</a> |", "<a href=\"/bin/describe?target=introtut_start\">Tutorial</a> |", "<a href=\"http://www.cold.org/~faq/cold.html\">FAQ</a> |", "<a href=\"/bin/help?node=help_coldc\">Programmer's Manual</a> |", "<a href=\"/bin\">Gateways</a> |", "<a href=\"/bin/help\">Help System</a>"];
-    page += ["</b><p><hr size=1 noshade width=\"50%\">"];
-    return page;
-};
-
 public method .connect_help() {
     return connect_help;
 };
 
 root method .core_motd() {
+    (| .del_method('generate) |);
+    (| .rename_method('core_generate, 'generate) |);
     server_url = "http://none:1180/";
-    .del_method('build_html);
-    .rename_method('core_build_html, 'build_html);
     server_name = "ColdCore";
     server_title = "Virtual Community Server";
-    welcome_notes = [];
+    notes = ["** Welcome to your new ColdCore, use the command 'help' to **", "** learn more about how to connect with the 'create' command **"];
+};
+
+public method .generate() {
+    arg @args;
+    var page, l;
+    
+    // this is your home page, change it as you whim may direct you
+    page = $directories.build_header(#[], #[], #[]);
+    if ((l = $directories.get_server_name_img()))
+        page += [l];
+    else
+        page += [("<h1>" + server_name) + "</h1>"];
+    page += (["<p align=center><i><tt>"] + ($code_lib.random_quote())) + ["</tt></i>"];
+    if (server_title)
+        page += [("<h3>" + server_title) + "</h3>"];
+    if (notes) {
+        page += ["<table align=center border=0><tr><td bgcolor=\"#cccccc\">"];
+        page += [(notes.prefix("<br>")).affix("<br>")];
+        page += ["</td></tr></table>"];
+    }
+    page += ["<p><b>Things to do from here:</b>"];
+    page += ["<ul>"];
+    page += ["<li>Login <a href=\"/file/jlogin/index.html\">Interactively</a> or "];
+    page += ["<a href=\"/desktop/\">Non-Interactively</a><br>"];
+    page += ["<li>See <a href=\"/bin/who\">Who is Online</a><br>"];
+    page += ["<li>Browse <a href=\"/bin/describe\">the VR World</a>,"];
+    page += ["<a href=\"/bin/object\">ColdC Objects</a>"];
+    page += [" or <a href=\"/ar\">Action Requests</a><br>"];
+    page += ["<li>Read documentation: <a href=\"/bin/help\">Help Files</a>,"];
+    page += [" <a href=\"/bin/describe?target=introtut_start\">Introductory Tutorial</a>"];
+    page += [" or <a href=\"/bin/help?node=help_coldc\">the ColdC Manual</a>"];
+    page += ["</ul>"];
+    page += ["<p align=left>", "<table border=0>"];
+    page += ["<tr><th valign=top align=left>Administrators:</th>"];
+    page += [("<td>" + ((($sys.admins()).mmap('hname)).to_english())) + "</td></tr>"];
+    page += ["<tr><th valign=top align=left>Current&nbsp;Users:</th>"];
+    page += [("<td>" + ($user_db.total_connected())) + " (<a href=\"/bin/who\">Get List</a>)</td></tr>"];
+    page += ["<tr><th valign=top align=left>Server Lag:</th>"];
+    page += [("<td>" + ($lag_watcher.lag())) + " seconds.</td></tr>"];
+    page += ["<tr><th valign=top align=left>Driver: </th>"];
+    page += [("<td><a href=\"http://www.cold.org/Software/Genesis/\">Genesis</a> " + ($sys.server_info('driver_version))) + "</td></tr>"];
+    page += ["<tr><th valign=top align=left>Core:</th>"];
+    page += [("<td>" + ($sys.server_info('core_version, 'long))) + "</td></tr>"];
+    page += ["</body>"];
+    return page;
+};
+
+public method .get_default_css() {
+    arg @args;
+    
+    return default_css;
+};
+
+public method .get_server_name_img() {
+    arg @args;
+    
+    return server_name_img;
 };
 
 public method .get_server_name_setting() {
@@ -119,6 +151,22 @@ public method .get_server_title_setting() {
     arg @args;
     
     return server_title;
+};
+
+public method .notes() {
+    return notes;
+};
+
+protected method .parse_default_css() {
+    arg file;
+    
+    if (file) {
+        //catch ~file {
+        (> $file.fstat("html/" + file) <);
+    
+        // } with {
+    }
+    return file;
 };
 
 public method .server_name() {
@@ -140,6 +188,13 @@ public method .set_connect_help() {
     connect_help = text;
 };
 
+protected method .set_default_css() {
+    arg name, definer, value, @args;
+    
+    // called by @set
+    default_css = value;
+};
+
 public method .set_motd() {
     arg what, value;
     
@@ -149,6 +204,21 @@ public method .set_motd() {
     if (!(type(value) in ['string, 'list]))
         throw(~motd, "Value must be sent as a string or a list of strings.");
     set_var(what, value);
+};
+
+public method .set_notes() {
+    arg notes;
+    
+    (> .perms(sender()) <);
+    if (type(notes) != 'list)
+        throw(~type, "notes must be a list of strings");
+    set_var('notes, notes);
+};
+
+public method .set_server_name_img() {
+    arg name, definer, value, @args;
+    
+    server_name_img = value;
 };
 
 protected method .set_server_name_setting() {
@@ -161,16 +231,6 @@ protected method .set_server_title_setting() {
     arg name, definer, value, @args;
     
     server_title = value;
-};
-
-public method .tcd_build_html() {
-    arg @args;
-    
-    return [("<head><title>" + server_name) + "</title></head>", "<body bgcolor=\"#000000\" text=\"#ffefef\" link=\"#b000f0\" vlink=\"#9000c0\" alink=\"#f000f0\">", "<p align=center><img src=\"http://www.cold.org/images/tCD.gif\" alt=\"The Cold Dark\"></p>", ("<h3 align=center>" + server_title) + "</h3>", "<p align=center><tt>", @$code_lib.random_quote(), "</tt></p>", "<p align=center>", @notes, "</p>", ("<p align=center>Administrators: " + ((($sys.admins()).mmap('hname)).to_english())) + "<br>", ("<a href=\"/bin/who\">Currently Connected users</a>: " + tostr($user_db.total_connected())) + "<br>", ("Server Lag: " + ($lag_watcher.lag())) + " seconds.<br>", "Driver: <b><a href=\"http://www.cold.org/Software/Genesis/\">Genesis</a></b> " + ($sys.server_info('driver_version)), ("<br>Core: <b>" + ($sys.server_info('core_version, 'long))) + "</b>", ("<p align=center><a href=\"http://" + ($sys.server_info('server_hostname))) + "/login/\"><b><i>Enter the Cold Dark</i></b></a>", "<p align=center>The Cold Dark is a Virtual Environment System.  There is no game in the Cold Dark, the purpose is to create a core which expands the physicality of a Virtual Environment.  To further explore the database, follow the <a href=\"/start.html\">Database Starting Points</a> link.</p>", "<hr>", "<p align=center>", "<a href=\"/history.html\"><b>History</b></a> |", "<a href=\"/features.html\"><b>Features</b></a> |", "<a href=\"http://www.cold.org/Intro/\"><b>Introduction</b></a> |", "<a href=\"/start.html\"><b>DB Starting Points</b></a>", "</p>"];
-};
-
-public method .welcome_notes() {
-    return welcome_notes;
 };
 
 
