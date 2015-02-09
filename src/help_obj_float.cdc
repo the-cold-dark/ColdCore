@@ -1,0 +1,15 @@
+
+new object $help_obj_float: $help_obj;
+
+var $dmi_data descriptions = #[];
+var $has_name name = ['prop, "Float", "Float"];
+var $help_node body = <$ctext_frob, [[<$format, ["dl", [["ind", "8"]], [<$format, ["dt", [], [".", <$format, ["method", [["float.ceiling", 1]], ["ceiling"], 'do_method]>, "(", <$format, ["var", [], ["float"], 'do_var]>, ")"], 'do_dt]>, <$format, ["dd", [], ["This method calculates the ceiling of the floating point value. The ceiling is the next largest integer, so the ceiling of 5.4 is 6.0."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["float.floor", 1]], ["floor"], 'do_method]>, "(", <$format, ["var", [], ["float"], 'do_var]>, ")"], 'do_dt]>, <$format, ["dd", [], ["This method calculates the floor of the floating point value ", <$format, ["var", [], ["float"], 'do_var]>, ". The floor is the next smallest integer, so the floor of 5.4 is 5.0."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["float.round", 1]], ["round"], 'do_method]>, "(", <$format, ["var", [], ["float"], 'do_var]>, ")"], 'do_dt]>, <$format, ["dd", [], ["This method returns the rounded off value of ", <$format, ["var", [], ["float"], 'do_var]>, " to the nearest integral value."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["float.round_to", 1]], ["round_to"], 'do_method]>, "(", <$format, ["var", [], ["float"], 'do_var]>, ", ", <$format, ["var", [], ["places"], 'do_var]>, ")"], 'do_dt]>, <$format, ["dd", [], ["This method rounds the value ", <$format, ["var", [], ["float"], 'do_var]>, " off to the given number of places as specified by the argument ", <$format, ["var", [], ["places"], 'do_var]>, "."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["float.fractional_part", 1]], ["fractional_part"], 'do_method]>, "(", <$format, ["var", [], ["float"], 'do_var]>, ")"], 'do_dt]>, <$format, ["dd", [], ["This method returns the fractional part of a floating point value. The result for 1.234 would be 0.234. The value will always be positive."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["float.to_integer", 1]], ["to_integer"], 'do_method]>, "(", <$format, ["var", [], ["float"], 'do_var]>, ")"], 'do_dt]>, <$format, ["dd", [], ["This method returns the integral value of a floating point number."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["float.log", 1]], ["log"], 'do_method]>, "(", <$format, ["var", [], ["base"], 'do_var]>, ", ", <$format, ["var", [], ["value"], 'do_var]>, ")"], 'do_dt]>, <$format, ["dd", [], ["Given a base, ", <$format, ["var", [], ["base"], 'do_var]>, ", and a value, ", <$format, ["var", [], ["value"], 'do_var]>, ", this method returns the log of the value in the given base."], 'do_dd]>], 'do_dl]>], #[]]>;
+var $help_node index = $help_index_objects;
+var $help_node links = #[];
+var $root created_on = 910069163;
+var $root flags = ['variables, 'methods, 'code, 'core];
+var $root inited = 1;
+var $root managed = [$help_obj_float];
+var $root manager = $help_obj_float;
+
+

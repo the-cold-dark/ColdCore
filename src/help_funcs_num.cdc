@@ -1,0 +1,14 @@
+
+new object $help_funcs_num: $help_coldc_func;
+
+var $has_name name = ['prop, "Numeric", "Numeric"];
+var $help_node body = <$ctext_frob, [[<$format, ["table", [["cols", "16%,16%,16%,16%,16%,16%"]], [<$format, ["tr", [], [<$format, ["td", [], [<$format, ["link", [["node", "$help_func_abs"]], ["abs()"], 'do_link]>], 'do_td]>, <$format, ["td", [], [<$format, ["link", [["node", "$help_func_math"]], ["acos()"], 'do_link]>], 'do_td]>, <$format, ["td", [], [<$format, ["link", [["node", "$help_func_math"]], ["asin()"], 'do_link]>], 'do_td]>, <$format, ["td", [], [<$format, ["link", [["node", "$help_func_math"]], ["atan()"], 'do_link]>], 'do_td]>, <$format, ["td", [], [<$format, ["link", [["node", "$help_func_math"]], ["atan2()"], 'do_link]>], 'do_td]>, <$format, ["td", [], [<$format, ["link", [["node", "$help_func_math"]], ["cos()"], 'do_link]>], 'do_td]>], 'do_tr]>, <$format, ["tr", [], [<$format, ["td", [], [<$format, ["link", [["node", "$help_func_math"]], ["exp()"], 'do_link]>], 'do_td]>, <$format, ["td", [], [<$format, ["link", [["node", "$help_func_math"]], ["log()"], 'do_link]>], 'do_td]>, <$format, ["td", [], [<$format, ["link", [["node", "$help_func_math"]], ["Math"], 'do_link]>], 'do_td]>, <$format, ["td", [], [<$format, ["link", [["node", "$help_func_max"]], ["max()"], 'do_link]>], 'do_td]>, <$format, ["td", [], [<$format, ["link", [["node", "$help_func_min"]], ["min()"], 'do_link]>], 'do_td]>, <$format, ["td", [], [<$format, ["link", [["node", "$help_func_math"]], ["pow()"], 'do_link]>], 'do_td]>], 'do_tr]>, <$format, ["tr", [], [<$format, ["td", [], [<$format, ["link", [["node", "$help_func_random"]], ["random()"], 'do_link]>], 'do_td]>, <$format, ["td", [], [<$format, ["link", [["node", "$help_func_math"]], ["sin()"], 'do_link]>], 'do_td]>, <$format, ["td", [], [<$format, ["link", [["node", "$help_func_math"]], ["sqrt()"], 'do_link]>], 'do_td]>, <$format, ["td", [], [<$format, ["link", [["node", "$help_func_math"]], ["tan()"], 'do_link]>], 'do_td]>, <$format, ["td", [], [], 'do_td]>, <$format, ["td", [], [], 'do_td]>], 'do_tr]>], 'do_table]>], #[['this, $help_funcs_num]]]>;
+var $help_node links = #[["abs()", $help_func_abs], ["acos()", $help_func_math], ["asin()", $help_func_math], ["atan()", $help_func_math], ["atan2()", $help_func_math], ["cos()", $help_func_math], ["exp()", $help_func_math], ["log()", $help_func_math], ["Math", $help_func_math], ["max()", $help_func_max], ["min()", $help_func_min], ["pow()", $help_func_math], ["random()", $help_func_random], ["sin()", $help_func_math], ["sqrt()", $help_func_math], ["tan()", $help_func_math]];
+var $help_node nolist = 0;
+var $root created_on = 855384021;
+var $root flags = ['variables, 'methods, 'code, 'core];
+var $root inited = 1;
+var $root managed = [$help_funcs_num];
+var $root manager = $help_funcs_num;
+
+

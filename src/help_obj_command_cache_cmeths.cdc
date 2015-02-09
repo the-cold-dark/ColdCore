@@ -1,0 +1,14 @@
+
+new object $help_obj_command_cache_cmeths: $help_obj_command_cache;
+
+var $dmi_data descriptions = #[];
+var $has_name name = ['prop, "Client Methods", "Client Methods"];
+var $help_node body = <$ctext_frob, [[<$format, ["dl", [["ind", "8"]], [<$format, ["dt", [], [".", <$format, ["method", [["command_cache.cache_client_init", 1]], ["cache_client_init"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Must be called before the client can lookup commands."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.cache_client_uninit", 1]], ["cache_client_uninit"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Called when the client will stop looking up commands (e.g. the user logs out)."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.match_shortcut", 1]], ["match_shortcut"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Used to lookup a shortcut in any of the client's Cache Servers. Returns either zero if no shortcuts are found, or a list where the first element is ", <$format, ["tt", [], ["'shortcut"], 'do_tt]>], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.match_command", 1]], ["match_command"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Used to lookup a command in any of the client's Cache Servers. Returns either zero if no matches are found, or a list where the first element is either ", <$format, ["tt", [], ["'partial"], 'do_tt]>, " or ", <$format, ["tt", [], ["'command"], 'do_tt]>, "."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.match_command", 1]], ["match_remote_command"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Used by $remote_cache to lookup a command in the remote cache. Returns either zero if no matches are found, or a list where the first element is either ", <$format, ["tt", [], ["'partial"], 'do_tt]>, " or ", <$format, ["tt", [], ["'remote"], 'do_tt]>, "."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.add_command_module", 1]], ["add_command_module"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Add a command module to the client."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.del_command_module", 1]], ["del_command_module"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Remove a command module from the client."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.command_modules", 1]], ["command_modules"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["List the command modules used by the client."], 'do_dd]>], 'do_dl]>], #[]]>;
+var $help_node links = #[];
+var $root created_on = 887946512;
+var $root flags = ['variables, 'methods, 'code, 'core];
+var $root inited = 1;
+var $root managed = [$help_obj_command_cache_cmeths];
+var $root manager = $help_obj_command_cache_cmeths;
+
+

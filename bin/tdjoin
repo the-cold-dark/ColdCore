@@ -1,0 +1,114 @@
+#! /usr/bin/env perl
+#
+# Created by Zachary
+# Updated by Brandon to include both split and join
+# Updated by Brandon for Perl5 and the new database format
+# changed it to use +INDEX instead of INDEX, nixed .cdc in index file
+# changed status indicator
+#
+
+## require perl 5 or better, sorry guys, upgrade time.
+if ($] < 5) {
+    die("This program requires perl 5.002 or greater.\n");
+}
+#require 5.002;
+
+$ver = "2.1";
+$src = "src";
+select(STDOUT); $| = 1;
+
+open(OUT, ">textdump") || die("Unable to open textdump: $!\n");
+
+my $status = 0;
+sub progress {
+    print "\b";
+    if (!$status)        { print "|"; $status++; }
+    elsif ($status == 1) { print "/"; $status++; }
+    elsif ($status == 2) { print "-"; $status++; }
+    elsif ($status == 3) { print "\\"; $status = 0; }
+}
+
+sub join_index {
+    my($index) = $_[0];
+
+    open(INDEX, $index) || return 0;
+
+    while (<INDEX>) {
+        chomp;
+        progress();
+        $file = "$src/$_.cdc";
+        if (-e $file) {
+            open(FILE, $file);
+            while (<FILE>) {
+                print OUT;
+            }
+            close(FILE);
+        } else {
+            print STDERR "\bAck, unable to find file \"$file\".\n";
+        }
+    }
+    return 1;
+}
+
+print "Database Joiner Version $ver\n";
+if (!join_index("src/+CORE")) {
+    die("\bNo CORE Index\n");
+}
+if (!join_index("src/+INDEX")) {
+    die("\bNo General Index\n");
+}
+print "\b \b";
+close(OUT);
+
+__END__
+$USAGE = <<END;
+Version $ver
+
+Usage: dumpsplit <option> [<dump> <srcdir>]
+
+    dump defaults to "textdump"
+    srcdir defaults to "src"
+
+Options:
+
+    -s   -- split
+    -j   -- join db (unsplit)
+
+END
+
+$_ = $ARGV[0];
+shift;
+
+if ($ARGV[0]) { $textdump = $ARGV[0]; } else { $textdump = "textdump"; }
+if ($ARGV[1]) { $srcdir = $ARGV[1]; } else { $srcdir = "src"; }
+
+$index = "$srcdir/+INDEX";
+
+if (!(-d $srcdir)) {
+    mkdir($srcdir, 0755) ||
+       (print "Unable to make directory \"$srcdir\"." && exit);
+}
+
+print "DumpSplit Version $ver\n";
+if (/^-s/) {
+    open(DUMP, "$textdump") ||
+        (print "${USAGE}Unable to open textdump \"$textdump\".\n" && exit);
+    open(INDEX, ">$index") ||
+        (print "${USAGE}Unable to open name file \"$index\".\n" && exit);
+    print "Splitting db.. ";
+    &split();
+} elsif (/^-[uj]/) {
+    open(DUMP, ">$textdump") ||
+        (print "${USAGE}Unable to open textdump \"$textdump\".\n" && exit);
+    open(INDEX, "$index") ||
+        (print "${USAGE}Unable to open name file \"$index\".\n" && exit);
+    print "Joining db.. ";
+    &unsplit();
+} else {
+    print $USAGE;
+    exit(0);
+}
+print "\b \b\n";
+
+close(DUMP);
+close(INDEX);

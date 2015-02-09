@@ -1,0 +1,14 @@
+
+new object $help_obj_command_cache_smeths: $help_obj_command_cache;
+
+var $dmi_data descriptions = #[];
+var $has_name name = ['prop, "Server Methods", "Server Methods"];
+var $help_node body = <$ctext_frob, [[<$format, ["dl", [["ind", "8"]], [<$format, ["dt", [], [".", <$format, ["method", [["command_cache.cache_server_init", 1]], ["cache_server_init"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Called by cache clients to notify prepare the server for use. MUST be called before a server will function (and is called automatically when the client starts)."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.cache_server_uninit", 1]], ["cache_server_uninit"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Notifies the cache that one of its clients is going away. The server will do a cursory check and may purge its cache if it determines it is no longer needed."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.is_general_cache", 1]], ["is_general_cache"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Returns true if the server is configured as a General Cache."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.purge_cache", 1]], ["purge_cache"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Clears the command (and shortcut) cache."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.rehash_cache", 1]], ["rehash_cache"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Builds the command (and shortcut) cache."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.add_object_to_cache", 1]], ["add_object_to_cache"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Adds all commands defined on an object to the cache."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.add_to_cache", 1]], ["add_to_cache"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Adds a command to the cache."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.del_from_cache", 1]], ["del_from_cache"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Removes a command from the cache."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.shortcut_cache", 1]], ["shortcut_cache"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Returns the shortcut cache."], 'do_dd]>, <$format, ["dt", [], [".", <$format, ["method", [["command_cache.command_cache", 1]], ["command_cache"], 'do_method]>, "()"], 'do_dt]>, <$format, ["dd", [], ["Returns the command cache."], 'do_dd]>], 'do_dl]>], #[]]>;
+var $help_node links = #[];
+var $root created_on = 887946512;
+var $root flags = ['variables, 'methods, 'code, 'core];
+var $root inited = 1;
+var $root managed = [$help_obj_command_cache_smeths];
+var $root manager = $help_obj_command_cache_smeths;
+
+

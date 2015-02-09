@@ -1,0 +1,15 @@
+
+new object $help_coldc_index: $help_coldc_ops;
+
+var $has_name name = ['prop, "Index Operators", "Index Operators"];
+var $help_node body = <$ctext_frob, [[<$format, ["p", [], [], 'do_p]>, "Indexing involves lookup in either a string, list, buffer and in some instances a dictionary. Depending upon the specific operator used indexing can return either the position of a desired element, or it can return the element at the specified position. There are two indexing operators, each performing one of these roles:", <$format, ["p", [], [], 'do_p]>, <$format, ["dfn", [], ["[]", <$format, ["br", [], [], 'do_br]>, "in"], 'do_dfn]>, <$format, ["p", [], [], 'do_p]>, "The binary operator index-lookup (", <$format, ["tt", [], ["in"], 'do_tt]>, ") is used to find the position of an element. It may only be used with strings, lists and buffers. When used this operator will return an integer representing the position within the right side data where the left side specified element exists. If the specified element does not exist, a zero (", <$format, ["tt", [], ["0"], 'do_tt]>, ") is returned. Indexing is case-insensitive, when using strings. Example:", <$format, ["p", [], [], 'do_p]>, <$format, ["dfn", [], ["\"C\" in \"abcdefg\"", <$format, ["br", [], [], 'do_br]>, "=> 3"], 'do_dfn]>, <$format, ["p", [], [], 'do_p]>, "The expression ", <$format, ["tt", [], [<$format, ["link", [["node", "$help_coldc_find"]], ["find"], 'do_link]>], 'do_tt]>, " and the functions ", <$format, ["tt", [], [<$format, ["link", [["node", "$help_func_stridx"]], ["stridx()"], 'do_link]>], 'do_tt]>, ", ", <$format, ["tt", [], [<$format, ["link", [["node", "$help_func_listidx"]], ["listidx()"], 'do_link]>], 'do_tt]>, " and ", <$format, ["tt", [], [<$format, ["link", [["node", "$help_func_bufidx"]], ["bufidx()"], 'do_link]>], 'do_tt]>, " may also be used in finding the positional index of an element. ", <$format, ["np", [], [], 'do_np]>, "The index-retrieve operator ([]) is used to retrieve an element found within the data. It may be used with strings, lists, buffers and dictionaries. It is a binary operator, although its syntax is not as standard as others:", <$format, ["p", [], [], 'do_p]>, <$format, ["dfn", [], [<$format, ["i", [], ["data expression"], 'do_i]>, "[", <$format, ["i", [], ["data expression"], 'do_i]>, "]"], 'do_dfn]>, <$format, ["p", [], [], 'do_p]>, "The right data expression is used as the key to lookup within the left data expression. In all but the dictionary the right data expression must result in an integer, which represents the position in the right data expression to retrieve from. With a dictionary the right data expression may be any data type (see ", <$format, ["link", [["node", "$help_coldc_types_dicts"]], ["Dictionaries"], 'do_link]>, ")."], #[['this, $help_coldc_index]]]>;
+var $help_node index = $help_index_driver;
+var $help_node links = #[["find", $help_coldc_find]];
+var $help_node nolist = 0;
+var $root created_on = 854138336;
+var $root flags = ['variables, 'methods, 'code, 'core];
+var $root inited = 1;
+var $root managed = [$help_coldc_index];
+var $root manager = $help_coldc_index;
+
+

@@ -1,0 +1,15 @@
+
+new object $help_coldc_scatter_assign: $help_coldc_assign;
+
+var $has_name name = ['prop, "Scatter", "Scatter"];
+var $help_node body = <$ctext_frob, [[<$format, ["p", [], [], 'do_p]>, "In a scatter assignment multiple variables are specified within a square brackets on the left, and each element from the list expression on the right is assigned to the respective variable on the left, with any remaining elements in the list being discarded. For example:", <$format, ["p", [], [], 'do_p]>, <$format, ["dfn", [], [<$format, ["tt", [], ["[var1, var2, var3] = [\"this\", [\"for\"], 1, 'that]"], 'do_tt]>], 'do_dfn]>, <$format, ["p", [], [], 'do_p]>, "In this example ", <$format, ["tt", [], ["var1"], 'do_tt]>, " is assigned the string ", <$format, ["tt", [], ["\"this\""], 'do_tt]>, ", ", <$format, ["tt", [], ["var2"], 'do_tt]>, " is assigned the list ", <$format, ["tt", [], ["[\"for\"]"], 'do_tt]>, ", ", <$format, ["tt", [], ["var3"], 'do_tt]>, " is assigned the integer ", <$format, ["tt", [], ["1"], 'do_tt]>, " and the remaining symbol ", <$format, ["tt", [], ["'that"], 'do_tt]>, " is discarded. ", <$format, ["np", [], [], 'do_np]>, "The remaining elements may all be grouped in a new list which is stored in the last variable by using the ", <$format, ["i", [], [<$format, ["link", [["node", "$help_coldc_splice"]], ["List Splice"], 'do_link]>], 'do_i]>, " operator on the last variable in the scatter list, such as:", <$format, ["p", [], [], 'do_p]>, <$format, ["dfn", [], [<$format, ["tt", [], ["[var1, var2, @var3] = [\"this\", [\"for\"], 1, 'that]"], 'do_tt]>], 'do_dfn]>, <$format, ["p", [], [], 'do_p]>, "In this example ", <$format, ["tt", [], ["var3"], 'do_tt]>, " would have the value ", <$format, ["tt", [], ["[1, 'that]"], 'do_tt]>, ". The List Splice operator may only be used this way on the last variable in the scatter list. ", <$format, ["np", [], [], 'do_np]>, "Scatter Assignments may also be nested, assuming the list expression is a nested list in the same order as the scatter list. For example:", <$format, ["p", [], [], 'do_p]>, <$format, ["dfn", [], [<$format, ["tt", [], ["[var1, [var2, @var3], var4] = [\"this\", [\"for\", 1, 2, 3], 'that]"], 'do_tt]>], 'do_dfn]>, <$format, ["p", [], [], 'do_p]>, "In this example ", <$format, ["tt", [], ["var1"], 'do_tt]>, " is assigned ", <$format, ["tt", [], ["\"this\""], 'do_tt]>, ", ", <$format, ["tt", [], ["var2"], 'do_tt]>, " is assigned ", <$format, ["tt", [], ["\"for\""], 'do_tt]>, ", ", <$format, ["tt", [], ["var3"], 'do_tt]>, " is assigned the new list ", <$format, ["tt", [], ["[1, 2, 3]"], 'do_tt]>, " and ", <$format, ["tt", [], ["var4"], 'do_tt]>, " is assigned the remaining symbol ", <$format, ["tt", [], ["'that"], 'do_tt]>, "."], #[['this, $help_coldc_scatter_assign]]]>;
+var $help_node index = $help_index_driver;
+var $help_node links = #[["List Splice", $help_coldc_splice]];
+var $help_node nolist = 0;
+var $root created_on = 854129007;
+var $root flags = ['variables, 'methods, 'code, 'core];
+var $root inited = 1;
+var $root managed = [$help_coldc_scatter_assign];
+var $root manager = $help_coldc_scatter_assign;
+
+

@@ -1,0 +1,15 @@
+
+new object $help_coldc_tasks_frames: $help_coldc_tasks;
+
+var $has_name name = ['prop, "Frames", "Frames"];
+var $help_node body = <$ctext_frob, [[<$format, ["p", [], [], 'do_p]>, "The state of a method as it is being evaluated is called the ", <$format, ["i", [], ["execution frame"], 'do_i]>, ". Each frame has a few unique values associated with it, including the maximum operations it can execute, the method itself, the current object and the object defining the method being executed. These values are only relevant to the current frame, and may or may not propagate to the next execution frame. ", <$format, ["np", [], [], 'do_np]>, "The maximum operations a frame can execute are also referred to as the ticks. If a frame runs out of ticks before it finishes executing, the ", <$format, ["tt", [], ["~ticks"], 'do_tt]>, " error is thrown by the interpreter. ", <$format, ["np", [], [], 'do_np]>, "These values can be determined by calling the following functions, as is appropriate: ", <$format, ["dfn", [["nobound", 1], [" ", 1], ["ind", "4"]], [<$format, ["table", [["cols", "23%,77%"]], [<$format, ["tr", [], [<$format, ["th", [], ["FUNCTION"], 'do_th]>, <$format, ["th", [], ["RETURNS"], 'do_th]>], 'do_tr]>, <$format, ["tr", [], [<$format, ["td", [], [<$format, ["link", [["node", "$help_func_ticks_left"]], ["ticks_left()"], 'do_link]>], 'do_td]>, <$format, ["td", [], ["The ticks remaining in the frame"], 'do_td]>], 'do_tr]>, <$format, ["tr", [], [<$format, ["td", [], [<$format, ["link", [["node", "$help_func_method"]], ["method()"], 'do_link]>], 'do_td]>, <$format, ["td", [], ["The current method"], 'do_td]>], 'do_tr]>, <$format, ["tr", [], [<$format, ["td", [], [<$format, ["link", [["node", "$help_func_method"]], ["this()"], 'do_link]>], 'do_td]>, <$format, ["td", [], ["The current object"], 'do_td]>], 'do_tr]>, <$format, ["tr", [], [<$format, ["td", [], [<$format, ["link", [["node", "$help_func_method"]], ["definer()"], 'do_link]>], 'do_td]>, <$format, ["td", [], ["The object defining the method"], 'do_td]>], 'do_tr]>, <$format, ["tr", [], [<$format, ["td", [], [<$format, ["link", [["node", "$help_func_method"]], ["sender()"], 'do_link]>], 'do_td]>, <$format, ["td", [], ["The object which called this method (the last frame's current object)"], 'do_td]>], 'do_tr]>, <$format, ["tr", [], [<$format, ["td", [], [<$format, ["link", [["node", "$help_func_method"]], ["caller()"], 'do_link]>], 'do_td]>, <$format, ["td", [], ["The object defining the method which called this method (the last frame's definer)"], 'do_td]>], 'do_tr]>], 'do_table]>], 'do_dfn]>], #[['this, $help_coldc_tasks_frames]]]>;
+var $help_node index = $help_index_driver;
+var $help_node links = #[["ticks_left()", $help_func_ticks_left], ["method()", $help_func_method], ["this()", $help_func_method], ["definer()", $help_func_method], ["sender()", $help_func_method], ["caller()", $help_func_method]];
+var $help_node nolist = 0;
+var $root created_on = 854937535;
+var $root flags = ['variables, 'methods, 'code, 'core];
+var $root inited = 1;
+var $root managed = [$help_coldc_tasks_frames];
+var $root manager = $help_coldc_tasks_frames;
+
+

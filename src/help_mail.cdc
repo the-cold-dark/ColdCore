@@ -1,0 +1,16 @@
+
+new object $help_mail: $help_cmds;
+
+var $dmi_data descriptions = #[];
+var $has_name name = ['prop, "Mail System", "Mail System"];
+var $help_node body = <$ctext_frob, [[<$format, ["p", [], [], 'do_p]>, "The mail system built into ColdCore is a fairly basic one which allows each user to have their own mailbox and for there to exist various mailing lists which can be publicly accessible or have those who are able to send to the list or those able to read the list limited. ", <$format, ["np", [], [], 'do_np]>, "The commands to the ColdCore mail system are defined on object $mail_ui. ", <$format, ["np", [], [], 'do_np]>, "The following commands are available:", <$format, ["table", [["cols", "50%,50%"]], [<$format, ["tr", [], [<$format, ["td", [], [<$format, ["ul", [], [<$format, ["li", [], [<$format, ["link", [["node", "$help_mail_mail"]], ["@mail"], 'do_link]>, " <any>"], 'do_li]>, <$format, ["li", [], [<$format, ["link", [["node", "$help_mail_next_new"]], ["@nn|@next-new"], 'do_link]>, " <any>"], 'do_li]>, <$format, ["li", [], [<$format, ["link", [["node", "$help_mail_rmmail"]], ["@remove-m?ail|@rmm?ail"], 'do_link]>, " <any>"], 'do_li]>, <$format, ["li", [], [<$format, ["link", [["node", "$help_mail_subscribe"]], ["@sub?scribed"], 'do_link]>, " <any>"], 'do_li]>, <$format, ["li", [], [<$format, ["link", [["node", "$help_mail_reply"]], ["@reply"], 'do_link]>, " <any>"], 'do_li]>], 'do_ul]>], 'do_td]>, <$format, ["td", [], [<$format, ["ul", [], [<$format, ["li", [], [<$format, ["link", [["node", "$help_mail_mail_lists"]], ["@mail-list?s"], 'do_link]>], 'do_li]>, <$format, ["li", [], [<$format, ["link", [["node", "$help_mail_read"]], ["@read"], 'do_link]>, " <any>"], 'do_li]>, <$format, ["li", [], [<$format, ["link", [["node", "$help_mail_send"]], ["@send"], 'do_link]>, " <any>"], 'do_li]>, <$format, ["li", [], [<$format, ["link", [["node", "$help_mail_unsubscribe"]], ["@unsub?scribed"], 'do_link]>, " <any>"], 'do_li]>], 'do_ul]>], 'do_td]>], 'do_tr]>], 'do_table]>, <$format, ["p", [], [], 'do_p]>, "To learn more about creating a mailing list, see ", <$format, ["link", [["node", "$help_obj_mail_list"]], ["Mail Lists"], 'do_link]>, "."], #[['links, #[["@mail", "$help_mail_mail"], ["@nn|@next-new", "$help_mail_next_new"], ["@remove-m?ail|@rmm?ail", "$help_mail_rmmail"], ["@sub?scribed", "$help_mail_subscribe"], ["@reply", "$help_mail_reply"], ["@mail-list?s", "$help_mail_mail_lists"], ["@read", "$help_mail_read"], ["@send", "$help_mail_send"], ["@unsub?scribed", "$help_mail_unsubscribe"], ["Mail Lists", "$help_obj_mail_list"]]]]]>;
+var $help_node holder = 1;
+var $help_node index = $help_index_subsystem;
+var $help_node links = #[["@mail", $help_mail_mail], ["@nn|@next-new", $help_mail_next_new], ["@remove-m?ail|@rmm?ail", $help_mail_rmmail], ["@sub?scribed", $help_mail_subscribe], ["@reply", $help_mail_reply], ["@mail-list?s", $help_mail_mail_lists], ["@read", $help_mail_read], ["@send", $help_mail_send], ["@unsub?scribed", $help_mail_unsubscribe], ["Mail Lists", $help_obj_mail_list]];
+var $root created_on = 863993835;
+var $root flags = ['variables, 'methods, 'code, 'core];
+var $root inited = 1;
+var $root managed = [$help_mail];
+var $root manager = $help_mail;
+
+

@@ -1,0 +1,312 @@
+#! /usr/bin/env perl -w
+#
+## Created for the third time from scratch (I lost the first two iterations
+## in hard drive crashes) on May 26 1997 -- Brandon Gillespie
+##
+## This does not just accept the defined textdump format, it ONLY accepts
+## the named textdump format from Genesis-1.1-STABLE, mainly because I'm
+## lazy and really thats all you should be using for this.  Furthermore,
+## its not very forgiving about whitespace, as a standard textdump should
+## be.  If your textdump has been manually altered from whatever Genesis
+## would normally output, you should run it through a compile/decompile
+## with coldcc first.
+##
+##        -Brandon
+##
+
+if ($] < 5) {
+    die("This program requires perl 5.002 or greater.\n");
+}
+
+$ver = "1.0";
+$help = "brandon\@cold.org";
+$syn = "Syntax: $0 [-t=textdump] [-s=srcdir]";
+$input  = "textdump";   
+$src = "src"; 
+$showstatus = 1;
+while ($#ARGV != -1) {
+    $_ = shift;
+    if (/^-t/) {
+        if (s/^-t=//) {
+            $input = $_;
+        } else {
+            $input = shift || die("$syn\nNo followup argument to '-t'\n");
+        }   
+    } elsif (/^-s/) {
+        if (s/^-s=//) { 
+            $src = $_;
+        } else {
+            $src = shift || die("$syn\nNo followup argument to '-s'\n");
+        }
+    } elsif (/^-q/) {
+        $showstatus = 0;
+    } else {
+        die("$syn\nInvalid argument '$_'\n");
+    }
+}
+
+$core = "$src/+CORE";
+$idx = "$src/+INDEX";
+
+    
+select(STDOUT); $| = 1;
+
+sub abort {
+    $msg = $_[0];
+    $msg =~ s/\n/\n\*\* /;
+    die("\n** $msg\n** Aborted.. Contact $help for help.\n");
+}
+
+if (!-e $src) {
+    mkdir($src, 0755);
+} elsif (!-d $src) {
+    die("Source location '$src' exists but is not a directory.\n");
+} elsif (!-w $src) {
+    die("Source location '$src' exists but is not writable.\n");
+}
+
+open(IDX, ">$idx") || die("Unable to open index: $!\n");
+open(CORE, ">$core") || die("Unable to open core index: $!\n");
+
+## where is input coming from
+print "Textdump Splitter and Sorter version $ver\nSplitting '$input' into '$src'\n";
+open(IN, $input) || die("Unable to open input file '$input': $!\n");
+
+### progress meter: just guess really well, no reason to spend lots
+### of time making it absolutely correct.
+my $avglines = -s $input;
+## average 45 chars per line *shrug*
+$avglines = ($avglines / 45) / 50;
+$printed =0;
+if ($showstatus) {
+    print
+    "          0% |-------25%-------------50%--------------75%-------| 100%\r";
+    print "Progress: 0% |";
+}
+
+my $next = $avglines;
+sub finish_progress {
+    if ($showstatus) {
+        while ($printed < 50) {
+            $printed++;
+            print "#";
+        }
+        print "\n";
+    }
+}
+
+sub progress {
+    if ($showstatus) {
+        if ($next <= $.) {
+            ## abort.. die, our averages were off?
+            ($printed == 49) && return;
+            print "#";
+            $next += $avglines;
+            $printed++;
+        }
+    }
+}
+
+## lets have at it
+$obj = "";
+$parents = "";
+$file = "";
+%vars = ();
+%methods = ();
+%mcode = ();
+%natives = ();
+$ISCORE = 0;
+
+while (<IN>) {
+    chomp;
+    if (!$_) {
+        next;
+    }
+
+    s/^new //;
+
+    ###############################################################
+    ### object
+    ###############################################################
+    if (s/^object //) {
+        print_object();
+        progress();
+        if (/^#(\d+)/) {
+            abort("Object #$1 without name found at line $.\n(Or this textdump wasn't created with the -# option to coldcc)");
+        }
+        if (!s/^\$([a-z0-9_]+)[;:]//i) {
+            abort("Unable to identify object at line $.");
+        }
+        $obj = $1;
+        $parents = $_;
+        $parents =~ s/^\s+//;
+        $parents =~ s/;$//;
+        $file = "$src/${obj}.cdc";
+        if (-e $file) {
+            abort("File already exists for object $obj, perhaps this textdump has\nalready been decompiled?");
+        }
+        next;
+    }
+
+    !$file && abort("Directives found before object definition\n");
+
+    ###############################################################
+    ### variables
+    ###############################################################
+    if (s/^var //) {
+        if (/^\$root flags = /) {
+            if (/'core[],]/) {
+                $ISCORE = 1;
+            } else {
+                $ISCORE = 0;
+            }
+        }
+
+        if (/^\$has_commands local /) {
+            s/ = #\[\[/ = \\\n  #[[/;
+            s/\]\]\]\]\]\]\], +/]]]]]]],\\\n  /g;
+            s/\n  (\["[^"]+",) \[\[/\n  $1\\\n    [[/gm;
+        }
+
+        if (!s/^\$([a-z0-9_]+)\s+//i) {
+            &warn("Invalid ancestor found defining variable, ignoring");
+            next;
+        }
+        $def = $1;
+        if (!s/^([a-z0-9_]+)\s+=\s+//i) {
+            &warn("Invalid variable definition, ignoring");
+            next;
+        }
+        $var = $1;
+        s/;$//;
+        $data = $_;
+
+        $key = "${def}:${var}";
+        if (exists($vars{$key})) {
+            abort("Bug? Key $key already exists in vars dict");
+        }
+        $vars{$key} = $data;
+        next;
+    }
+
+    ###############################################################
+    ### natives
+    ###############################################################
+    if (/^bind_native\s+\.([a-z0-9_]+)\(\)\s+\.([a-z0-9_]+)\(\)/i) {
+        $native = $1;
+        $alt = $2;
+        $natives{$native} = $alt;
+        next;
+    }
+
+    ###############################################################
+    ### method
+    ###############################################################
+    if (s/^(root|driver|frob|private|public|protected)\s+method\s+//) {
+        $access = $1;
+        if (!s/\.([a-z0-9_]+)\(\)\s*//i) {
+            abort("Invalid method definition");
+        }
+        $method = $1;
+        $end = "";
+        if (/:\s*([^{;]+)([{;])/) {
+            $flags = $1;
+            $end = $2;
+        } elsif (/\s*([{;])/) {
+            $flags = "";
+            $end = $1;
+        } else {
+            abort("Method not terminated correctly");
+        }
+
+        $key = "$method";
+        if (exists($methods{$key})) {
+            abort("Bug? Key $key already exists in method dict");
+        }
+        $methods{$key} = "$access:$flags";
+
+        $code = "";
+        if ($end eq "{") {
+            $terminated = 0;
+            while (<IN>) {
+                if (/^};$/) {
+                    $terminated = 1;
+                    last;
+                }
+                $code .= $_;
+            }
+            if (!$terminated) {
+                abort("Textdump ends in method definition");
+            }
+        }
+
+        $mcode{$key} = $code;
+        next;
+    }
+
+    abort("Unknown directive: $_\n");
+}
+
+print_object();
+
+finish_progress();
+
+sub print_object {
+    !$obj && return;
+
+    if ($ISCORE) {
+        print CORE "$obj\n";
+    } else {
+        print IDX "$obj\n";
+    }
+
+    open(OUT, ">$file") || abort("Unable to open $file: $!");
+
+    print OUT "\n";
+    if ($obj ne "root" && $obj ne "sys") {
+        print OUT "new ";
+    }
+
+    print OUT "object \$$obj";
+    if ($parents) {
+        print OUT ": $parents";
+    }
+    print OUT ";\n\n";
+
+    for $key (sort(keys(%vars))) {
+        ($def, $var) = split(/:/, $key);
+        print OUT "var \$$def $var = $vars{$key};\n";
+    }
+    print OUT "\n";
+
+    for $key (sort(keys(%methods))) {
+        ($access, $flags) = split(/:/, $methods{$key});
+        $code = $mcode{$key};
+        print OUT "$access method .$key()";
+        if ($flags) {
+            print OUT ": $flags";
+        }
+        if ($code) {
+            print OUT " {\n$code};\n\n";
+        } else {
+            print OUT ";\n\n";
+        }
+    }
+
+    for $key (sort(keys(%natives))) {
+        print OUT "bind_native .$key() .$natives{$key}();\n";
+    }
+    print OUT "\n";
+
+    close(OUT);
+    %vars = ();
+    %methods = ();
+    %mcode = ();
+    %natives = ();
+    $ISCORE = 0;
+}
+
+sub warn {
+    $msg = $_[0];
+    print(STDERR "\bLine $.: $msg\n");
+}

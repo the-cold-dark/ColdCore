@@ -1,0 +1,15 @@
+
+new object $help_commands_matching: $help_commands;
+
+var $has_name name = ['prop, "Matching Conventions", "Matching Conventions"];
+var $help_node body = <$ctext_frob, [[<$format, ["p", [], [], 'do_p]>, "Two types of general matching systems are used in Cold. The base matching system is pattern matching. The asterisk character ('*') in a pattern match is used to represent a wildcard. It can be placed anywhere in the pattern. It tells the interpreter that when matching the pattern with a string, anything can match the wildcard. This becomes useful for matching different strings. Some examples:", <$format, ["p", [], [], 'do_p]>, <$format, ["dfn", [], [<$format, ["quote", [], ["Pattern:           \"match *\"\nString:            \"match anything after this\"\nWildcard Match:    \"anything after this\"\n\nPattern:           \"match *t not this\"\nString:            \"match only this but not this\"\nWildcard Match:    \"only this bu\""], 'do_quote]>], 'do_dfn]>, <$format, ["p", [], [], 'do_p]>, "Template matching expands upon the basic idea of pattern matching. Template matching is a little smarter about matching. It recognizes words as anything bounded by spaces or the beginning and end of the string. In a template the wildcard must be its own word--it must have spaces around it. Templates also add two more special characters; the question mark ('?') for optional matching and the pipe character ('|') for multiple matches. ", <$format, ["np", [], [], 'do_np]>, "If a question mark is placed within a word, it means that the word must match up to the point of the question mark, but everything after that point is optional. For instance, all of the following would be valid against the specified template:", <$format, ["p", [], [], 'do_p]>, <$format, ["dfn", [], [<$format, ["quote", [], ["Template:          \"th?is\"\nString:            \"th\"\nString:            \"thi\"\nString:            \"this\""], 'do_quote]>], 'do_dfn]>, <$format, ["p", [], [], 'do_p]>, "The pipe character (", <$format, ["tt", [], ["|"], 'do_tt]>, ") is used to specify several different words that can match the place of one. For instance, the template \"this|that|there\" would match \"this\" ", <$format, ["i", [], ["OR"], 'do_i]>, " \"that\" ", <$format, ["i", [], ["OR"], 'do_i]>, " \"there\". It is easiest to logically think of the pipe character as ", <$format, ["i", [], ["OR"], 'do_i]>, ". With these elements drawn together you get a simple yet dynamic matching system. Some full template examples:", <$format, ["p", [], [], 'do_p]>, <$format, ["dfn", [], [<$format, ["quote", [], ["\"l?ook at *\"\n\"give|put * to|in *\"\n\"@who *\"\n\"@lock * to|with *\""], 'do_quote]>], 'do_dfn]>], #[['this, $help_commands_matching]]]>;
+var $help_node index = $help_index_core;
+var $help_node links = #[];
+var $help_node nolist = 0;
+var $root created_on = 810075678;
+var $root flags = ['methods, 'code, 'variables, 'core];
+var $root inited = 1;
+var $root managed = [$help_commands_matching];
+var $root manager = $help_commands_matching;
+
+

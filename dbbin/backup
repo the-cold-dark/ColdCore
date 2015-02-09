@@ -1,0 +1,146 @@
+#!/usr/bin/perl
+#
+# Created by Brandon Gillespie
+# Additional work by Vang (Dale Mayberry)
+#
+## This creates a FIFO list of backups based off your configuration,
+## it can do regular, weekly and monthly backups, with the intervals
+## and depth of the FIFO list defined by you.
+#
+# INSTALL:
+#
+# determine your world directory (i.e. the directory where 'binary'
+# exists).  Change the following variable to the full path to your
+# world directory:
+
+$base = "../";
+
+# After that do the following.  WORLD represents the full path to your
+# world directory, BACKUP represents the location of this backup script.
+#
+#     cd WORLD
+#     mkdir dbbin
+#     mkdir backups
+#     mkdir logs
+#     mv BACKUP dbbin
+#     chmod 700 dbbin/backup
+#
+# When you have done this backups from ColdCore should be stacked.
+#
+
+if (fork()) { exit(); }
+
+$logs = "${base}/logs";
+$bdir = "${base}/backups";
+
+# change these if you dont want to daily/weekly/monthly backups
+
+$do_monthly = 1;
+$do_weekly = 1;
+$do_daily = 1;
+
+# shift the FIFO list every hour, backups before the hour is up will
+# simply update the most recent backup, they will not shift the list
+
+$regular_interval = 3600;
+$daily_interval = 86400;
+$weekly_interval = 604800;
+$monthly_interval = 2629728;
+
+# how many increments do you want to keep in the various backups?
+
+$regular_FIFO = 24;
+$daily_FIFO = 6;
+$weekly_FIFO = 4;
+$monthly_FIFO = 4;
+
+##
+## you shouldn't have to change anything beyond here
+##
+
+## figure out the last time we did stuff
+open(TMP, "$logs/timestamps") || goto end;
+$last  = <TMP>;
+$last  = int($last);
+$daily = <TMP>;
+$daily = int($daily);
+$week  = <TMP>;
+$week  = int($week);
+$month = <TMP>;
+$month = int($month);
+close(TMP);
+
+end:
+
+## setup some basic vars
+($l_sec,$l_min,$l_hour,$l_mday,$l_mon,$l_year,$l_wday,$l_yday) = localtime();
+$time = time();
+
+@days = ("Sun","Mon","Tue","Wed","Thu","Fri","Sat");
+@months = ("Jan","Feb","Mar","Apr","May","Jun",
+           "Jul","Aug","Sep","Oct","Nov","Dec");
+
+$day = "$l_mday$months[$l_mon]$l_year";
+
+## zip up the current backup
+
+$sh = <<END;
+cd $base;
+mv binary.bak binary-${day};
+tar -cf binary-${day}.tar binary-${day};
+gzip -9f binary-${day}.tar;
+rm -rf binary-${day}
+END
+$sh =~ s/\n//g;
+
+system($sh);
+
+## regular FIFO shuffle, give it 100 seconds leeway
+if (($last + $regular_interval) <= ($time + 100)) {
+    &backup($regular_FIFO, "");
+    $last = $time;
+}
+
+## daily FIFO shuffle, give it 100 seconds leeway
+if ($do_daily && (($daily + $daily_interval) <= ($time + 700))) {
+    &backup($daily_FIFO, "DAILY");
+    $daily = $time;
+}
+
+## weekly FIFO shuffle, give it 100 seconds leeway per day (700 total)
+if ($do_weekly && (($week + $weekly_interval) <= ($time + 700))) {
+    &backup($weekly_FIFO, "WEEKLY");
+    $week = $time;
+}
+
+## monthly FIFO shuffle, give it 700 seconds leeway
+if ($do_monthly && (($month + $monthly_interval) <= ($time + 700))) {
+    &backup($monthly_FIFO, "MONTHLY");
+    $month = $time;
+}
+
+## write out the new timestamp
+if (open(TMP, ">$logs/timestamps")) {
+    print TMP <<END;
+$last
+$daily
+$week
+$month
+END
+    close(TMP);
+}
+
+sub backup {
+    ($top, $suffix) = @_;
+
+    for $x (0 .. ($top - 1)) {
+        $b = $top - $x;
+        $a = $b - 1;
+        rename("${bdir}/binary-${a}${suffix}.tar.gz",
+               "${bdir}/binary-${b}${suffix}.tar.gz");
+    }
+    system("/bin/cp",
+           "binary-${day}.tar.gz",
+           "${bdir}/binary-1${suffix}.tar.gz");
+}
+

@@ -1,0 +1,15 @@
+
+new object $help_security: $help_general;
+
+var $has_name name = ['prop, "Security", "Security"];
+var $help_node body = <$ctext_frob, [[<$format, ["p", [], [], 'do_p]>, "Security in the ColdCore is setup in a level structure, with each subsequent level encompasing the previous. All access is on a per-object basis, with the exception of the top level (System Level) which is globally encompassing. Basically, you can manage several objects, be a writer on a few more and a trustee on some others. User classes (i.e. builder, programmer, admin) are not associated with any security level, they exist simply to group commands and more powerful interfaces. The levels are:", <$format, ["p", [], [], 'do_p]>, <$format, ["table", [["cols", "20%,80%"]], [<$format, ["tr", [], [<$format, ["td", [], [<$format, ["b", [], ["System Level"], 'do_b]>], 'do_td]>, <$format, ["td", [], ["This level is the top level, encompassing administrators and system-level objects (such as ", <$format, ["tt", [], ["$root"], 'do_tt]>, " and ", <$format, ["tt", [], ["$sys"], 'do_tt]>, "). By default Administrators do not have this level enabled (it can be enabled each session with the command ", <$format, ["link", [["node", "$help_cmd_mojo"]], ["@mojo"], 'do_link]>, ")."], 'do_td]>], 'do_tr]>, <$format, ["tr", [], [<$format, ["td", [], [<$format, ["b", [], ["Manager Level"], 'do_b]>], 'do_td]>, <$format, ["td", [], ["Every object has a manager. The manager has full permissions on the specific object. Quota usage is also based off the object Manager."], 'do_td]>], 'do_tr]>, <$format, ["tr", [], [<$format, ["td", [], [<$format, ["b", [], ["Writer Level"], 'do_b]>], 'do_td]>, <$format, ["td", [], ["An object can have any number of writers. Writer Level permissions give full access to an object, with a few exceptions:", <$format, ["ul", [], [<$format, ["li", [], ["Writers cannot change any access permissions on an object (this includes adding other writers or changing the Manager)."], 'do_li]>, <$format, ["li", [], ["Writers cannot change the object's parents."], 'do_li]>, <$format, ["li", [], ["Writers cannot destroy the object."], 'do_li]>], 'do_ul]>], 'do_td]>], 'do_tr]>, <$format, ["tr", [], [<$format, ["td", [], [<$format, ["b", [], ["Trustee Level"], 'do_b]>], 'do_td]>, <$format, ["td", [], ["An object trustee is simply another object that is trusted more than random objects but less than a writer. The amount of access given depends upon the subsystem. For instance, adding a user as a trustee to a location they are not a Manager or Writer of will give them the ability to extend other rooms from it."], 'do_td]>], 'do_tr]>], 'do_table]>], #[['links, #[["@mojo", "$help_cmd_mojo"]]]]]>;
+var $help_node index = $help_index_core;
+var $help_node links = #[["@mojo", $help_cmd_mojo]];
+var $help_node nolist = 0;
+var $root created_on = 853888954;
+var $root flags = ['variables, 'methods, 'code, 'core];
+var $root inited = 1;
+var $root managed = [$help_security];
+var $root manager = $help_security;
+
+

@@ -1,0 +1,18 @@
+
+new object $help_index_driver: $help_index;
+
+var $db database = #[["Object Oriented Programming", $help_coldc_oop], ["OOP", $help_coldc_oop], ["Regexps", $help_coldc_regexp], ["Regular Expressions", $help_coldc_regexp], ["Integer", $help_coldc_types_ints], ["Number", $help_coldc_types_ints], ["Object Number", $help_coldc_types_dbref], ["objnum", $help_coldc_types_dbref], ["Object Name", $help_coldc_types_dbref], ["objname", $help_coldc_types_dbref], ["dbref", $help_coldc_types_dbref], ["Error Codes", $help_coldc_types_errors], ["Error-Handling", $help_coldc_err_stmts], ["catch", $help_coldc_err_stmts], ["Overridden Methods", $help_coldc_mcall_over], ["override", $help_coldc_mcall_over], ["if-else", $help_coldc_cond_ifelse], ["else", $help_coldc_cond_ifelse], ["Increment", $help_coldc_incdec], ["Decrement", $help_coldc_incdec], ["Objects", $help_coldc_objs], ["Textdump", $help_coldc_textdump], ["Functions", $help_coldc_func], ["Native Method Reference", $help_coldc_native], ["Referencing Objects", $help_coldc_objs_ref], ["Variables", $help_coldc_objs_vars], ["Special Object Status", $help_coldc_objs_special], ["Tokens", $help_coldc_tokens], ["Data Types", $help_coldc_types], ["Expressions", $help_coldc_expr], ["Statements", $help_coldc_stmts], ["Tasks and Frames", $help_coldc_tasks], ["Errors", $help_coldc_types_errors], ["Security", $help_coldc_security], ["Networking", $help_coldc_net], ["Files", $help_coldc_files], ["Float", $help_coldc_types_floats], ["String", $help_coldc_types_strings], ["Symbol", $help_coldc_types_symbols], ["List", $help_coldc_types_lists], ["Dictionary", $help_coldc_types_dicts], ["Frob", $help_coldc_types_frobs], ["Buffer", $help_coldc_types_buffers], ["Data", $help_coldc_data], ["Operators", $help_coldc_ops], ["Variable Expression", $help_coldc_vars], ["Function Call Expression", $help_coldc_fcall], ["Method Call Expression", $help_coldc_mcall], ["Error Handling Expression", $help_coldc_err_expr], ["Looping Expressions", $help_coldc_loop_expr], ["Simple", $help_coldc_simple_stmts], ["Looping Statements", $help_coldc_loop_stmts], ["Flags", $help_coldc_methods_flags], ["Access", $help_coldc_methods_access], ["Frames", $help_coldc_tasks_frames], ["Preempting", $help_coldc_tasks_preempt], ["Server Connection", $help_coldc_net_server], ["Client Connection", $help_coldc_net_client], ["Operator Precedence", $help_coldc_prec], ["Index Operators", $help_coldc_index], ["Arithmetic Operators", $help_coldc_arith], ["Assignments", $help_coldc_assign], ["Logical Operators", $help_coldc_logical], ["Conditional", $help_coldc_cond], ["List Splice Operator", $help_coldc_splice], ["map", $help_coldc_map], ["hash", $help_coldc_hash], ["find", $help_coldc_find], ["filter", $help_coldc_filter], ["Comment", $help_coldc_comment_stmt], ["Compound", $help_coldc_compound_stmt], ["Return", $help_coldc_return_stmt], ["if", $help_coldc_cond_if], ["switch", $help_coldc_cond_switch], ["for-list", $help_coldc_forlist], ["for-range", $help_coldc_forrange], ["while", $help_coldc_while], ["break", $help_coldc_break], ["continue", $help_coldc_continue], ["Scatter", $help_coldc_scatter_assign], ["Dual", $help_coldc_dual_assign], ["Default", $help_coldc_default_assign], ["Methods", $help_coldc_methods], ["ColdC Reference Manual", $help_coldc]];
+var $has_name name = ['prop, "Driver", "Driver"];
+var $help_index dirty = 6;
+var $help_node body = <$ctext_frob, [[], #[]]>;
+var $help_node links = #[];
+var $help_node nolist = 0;
+var $registry stripped_characters = "!@#$%^&*()";
+var $root created_on = 837910423;
+var $root flags = ['variables, 'methods, 'code, 'core];
+var $root inited = 1;
+var $root managed = [$help_index_driver];
+var $root manager = $help_index_driver;
+var $root trusted = [$help_node];
+
+
