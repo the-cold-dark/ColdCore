@@ -14,7 +14,7 @@ var $root managed = [$daemon];
 var $root manager = $daemon;
 
 driver method .connect() {
-    arg remote, local, socket;
+    arg remote, local, socket, @rest;
     var conn;
     
     if ($sys.host_denied(remote)) {
