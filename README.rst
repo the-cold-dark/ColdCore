@@ -1,10 +1,10 @@
 BEFORE YOU INSTALL
 ------------------
 
-You will need a current version of Genesis to use ColdCore-3.0.1999-08-28.
+You will need a current version of Genesis to use ColdCore-3.1.
 Information on getting the latest Genesis can be found at:
 
-    http://www.cold.org/Software/Genesis/
+    https://github.com/the-cold-dark/genesis/
 
 INSTALLING
 ----------
@@ -13,10 +13,11 @@ Once you have Genesis compiled, locate the programs 'coldcc' and
 'genesis' (created from the Genesis distribution) and move them to
 the 'bin' directory.  Then type::
 
-       bin/coldcc -tcoldcore
+       bin/tdjoin
+       bin/coldcc
 
-If there are no problems, the above two command will compile the
-'coldcore' file into a binary database.
+If there are no problems, the above two commands will compile the
+files in ``src`` into ``textdump`` and then into a binary database.
 
 The base directories genesis prefers (see the Genesis Documentation
 for full details), exist as::
@@ -48,14 +49,6 @@ port 1180.
 Once you connect to port 1138, you can type 'Help' for a list of
 commands available at the login screen.  You will want to use the
 command 'create' to create a new user.  By default all new users
-are created with administrator priviledges--and a configuration
+are created with administrator privileges--and a configuration
 system is also run at the same time, so be sure to do this before
 inviting other people onto your server.
-
-SUPPORT THE COLD PROJECT
-------------------------
-
-You can learn more about helping to support the Cold Project at:
-
-    http://www.cold.org/support/
-
