@@ -2021,7 +2021,7 @@ protected method .new_cmd() {
             if (valid(new))
                 return ("Unable to destroy new object " + line) + ".";
             else
-                return ("Sucessfully destroyed new object " + line) + ".";
+                return ("Successfully destroyed new object " + line) + ".";
         }
     }
 };
@@ -2862,7 +2862,7 @@ protected method .set_content_type() {
 
 public method .set_content_type_pueblo(): forked  {
     .tell("This world is Pueblo 1.10 enhanced.");
-    .tell("Pueblo is annoyingly proprietary in that it requires this message to be printed, the administration appologizes for the disgustingness of this behaviour.");
+    .tell("Pueblo is annoyingly proprietary in that it requires this message to be printed, the administration apologizes for the disgustingness of this behaviour.");
     content_type = 'html;
 };
 
@@ -2886,7 +2886,7 @@ public method .set_name() {
     if (sender() == $sys)
         new_name = strsed(new_name, ("^" + ((parents()[1]).objname())) + "_", "");
     
-    // so it doesnt bomb on .set_objname
+    // so it doesn't bomb on .set_objname
     if ((> $user_db.valid_name(new_name) <))
         old_name = .name();
     catch any {
@@ -3074,7 +3074,7 @@ public method .traceback_cmd() {
     (> .perms(caller(), 'command) <);
     tb = .last_traceback();
     last = time() - (tb[1]);
-    .tell(("=> Last traceback (recieved " + ($time.to_english(last))) + " ago):");
+    .tell(("=> Last traceback (received " + ($time.to_english(last))) + " ago):");
     .tell($parse_lib.traceback(tb[2], -1, ""));
 };
 
@@ -3294,7 +3294,7 @@ public method .will_move() {
     if (place.is($user))
         throw(~user, "Users cannot move into other users!");
     if ((mover.is($user)) && ((mover != this()) && (!($sys.is_system(mover)))))
-        throw(~user, "Only system priviledged objects can freely move users around.");
+        throw(~user, "Only system privileged objects can freely move users around.");
 };
 
 

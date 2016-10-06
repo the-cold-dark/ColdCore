@@ -241,8 +241,8 @@ protected method .help_cmd() {
                     o = ((.current_node()).parents())[1];
                     while ((o.is($help_node)) && (o.holder()))
                         o = (o.parents())[1];
-                    if ((!(o.is($help_node))) || (o.top_of_help_heirarchy()))
-                        return "You are at the top of this help node heirarchy.";
+                    if ((!(o.is($help_node))) || (o.top_of_help_hierarchy()))
+                        return "You are at the top of this help node hierarchy.";
                     node = o;
                 case "h?istory":
                     return ._help_node_history();

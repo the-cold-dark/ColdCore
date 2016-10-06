@@ -106,7 +106,7 @@ public method .ansi_wrap_line() {
     
     // Here's the tweak and the pain in the ass I'd like solved. When the
     // length of the word value of the string matches the line length, the
-    // extra "\n" a the end causes extra spacing for .atelln()
+    // extra "\n" at the end causes extra spacing for .atelln()
     return (output ? ((output.subrange(3)) + flag) : "") + str;
 };
 

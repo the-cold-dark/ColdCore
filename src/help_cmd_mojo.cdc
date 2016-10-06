@@ -2,7 +2,7 @@
 new object $help_cmd_mojo: $help_cmds;
 
 var $has_name name = ['prop, "@mojo", "@mojo"];
-var $help_node body = <$ctext_frob, [[<$format, ["p", [], [], 'do_p]>, <$format, ["b", [], ["ADMIN COMMAND"], 'do_b]>, <$format, ["p", [], [], 'do_p]>, <$format, ["dfn", [], ["Syntax: ", <$format, ["tt", [], ["@mojo on|off"], 'do_tt]>], 'do_dfn]>, <$format, ["p", [], [], 'do_p]>, "Used by an administrator to enable full system priveliges."], #[]]>;
+var $help_node body = <$ctext_frob, [[<$format, ["p", [], [], 'do_p]>, <$format, ["b", [], ["ADMIN COMMAND"], 'do_b]>, <$format, ["p", [], [], 'do_p]>, <$format, ["dfn", [], ["Syntax: ", <$format, ["tt", [], ["@mojo on|off"], 'do_tt]>], 'do_dfn]>, <$format, ["p", [], [], 'do_p]>, "Used by an administrator to enable full system privileges."], #[]]>;
 var $help_node index = $help_index_cmds;
 var $help_node links = #[];
 var $root created_on = 848119784;

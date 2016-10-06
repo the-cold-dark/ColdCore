@@ -20,7 +20,7 @@ public method .nolist() {
     return 1;
 };
 
-public method .top_of_help_heirarchy() {
+public method .top_of_help_hierarchy() {
     return definer() == this();
 };
 

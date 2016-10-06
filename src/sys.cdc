@@ -681,8 +681,8 @@ private method .make_core() {
     arg ver;
     var obj, obj2, d, o, top, x, admin, tmp, name;
     
-    // core rooms should be +core, and cant be destroyed
-    // traverse the list inverseley, less unseen heirarchial shuffling
+    // core rooms should be +core, and can't be destroyed
+    // traverse the list inversely, less unseen hierarchical shuffling
     .add_var('__making_core);
     dblog("** Starting Core Extraction " + ctime());
     d = $root.descendants();

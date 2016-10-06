@@ -292,7 +292,7 @@ public method .small_name() {
     return ((.name()).word(1, "|")).word(1);
 };
 
-public method .top_of_help_heirarchy() {
+public method .top_of_help_hierarchy() {
     return definer() == this();
 };
 

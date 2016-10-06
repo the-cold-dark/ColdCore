@@ -41,7 +41,7 @@ public method .configure() {
             if (ans.is_numeric()) {
                 ans = ans.explode_english_list();
                 if ((ans.length()) != 2) {
-                    s.tell("Seperate coordinates with a comma.");
+                    s.tell("Separate coordinates with a comma.");
                     continue;
                 }
                 if ((!((ans[1]).is_numeric())) || (!((ans[2]).is_numeric()))) {

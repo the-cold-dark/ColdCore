@@ -2182,7 +2182,7 @@ public method .spawn_cmd() {
             if (valid(new))
                 return ("Unable to destroy new object " + line) + ".";
             else
-                return ("Sucessfully destroyed new object " + line) + ".";
+                return ("Successfully destroyed new object " + line) + ".";
         }
     }
 };

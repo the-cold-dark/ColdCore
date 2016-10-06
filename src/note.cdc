@@ -9,7 +9,7 @@ var $has_name name = ['uniq, "Generic Note", "the Generic Note"];
 var $has_text text = [];
 var $located location = $void;
 var $located obvious = 1;
-var $note seperator = 0;
+var $note separator = 0;
 var $root created_on = 796268969;
 var $root defined_settings = #[["private", #[['parse, ['is_boolean]], ['format, ['format_boolean]]]]];
 var $root flags = ['core, 'fertile, 'code, 'methods, 'variables];
@@ -142,7 +142,7 @@ public method .read() {
         return [("You cannot read " + (.name())) + "."];
     output = output.append([$cml_lib.format_subj_tag(.name(), 2), br]);
     output = output.append([.prose(), br]);
-    output = output.append([.seperator()]);
+    output = output.append([.separator()]);
     text = .text();
     if ((!(.get_setting("plaintext", $has_text))) && (type(text) == 'frob)) {
         output = output.append(text.append(br));
@@ -152,7 +152,7 @@ public method .read() {
         text = text ? text : ["", "(nothing)", ""];
         output = output.append([$cml_lib.format_pre_tag($cml_lib.generate_join_tag(text, br)), br]);
     }
-    output = output.append([.seperator()]);
+    output = output.append([.separator()]);
     return output;
 };
 
@@ -164,16 +164,16 @@ public method .read_cmd() {
     return (.read(sender(), numbered)).append(["You finish reading " + (.name())]);
 };
 
-public method .seperator() {
+public method .separator() {
     return $cml_lib.format_sep_tag();
-    return (type(seperator) == 'string) ? seperator : "---";
+    return (type(separator) == 'string) ? separator : "---";
 };
 
-public method .set_seperator() {
+public method .set_separator() {
     arg newsep;
     
     .perms(sender(), 'manager);
-    seperator = newsep;
+    separator = newsep;
 };
 
 public method .write_at_cmd() {
