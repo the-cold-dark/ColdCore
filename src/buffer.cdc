@@ -73,8 +73,6 @@ public method .from_string(): native;
 
 public method .from_strings(): native;
 
-public method .from_veil_pkts(): native;
-
 public method .length(): native;
 
 public method .replace(): native;
@@ -91,7 +89,3 @@ public method .to_list() {
 public method .to_string(): native;
 
 public method .to_strings(): native;
-
-public method .to_veil_pkts(): native;
-
-
