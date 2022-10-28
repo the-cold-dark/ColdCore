@@ -38,26 +38,6 @@ public method .break_lines() {
     return out;
 };
 
-public method .bufsub() {
-    arg buf, a, b;
-    var i, la, lb, lt;
-    
-    // do we need a builtin for this?
-    // from Kipp's core (until I write a builtin--optimized by Brandon) 
-    if ((a == b) || ((buflen(a) > buflen(buf)) || ((!a) || (!buf))))
-        return buf;
-    la = buflen(a);
-    lb = buflen(b);
-    lt = buflen(buf);
-    i = 1;
-    anticipate_assignment();
-    while ((i <= buflen(buf)) && (i = bufidx(buf, a, i))) {
-        buf = (subbuf(buf, 1, i - 1) + b) + subbuf(buf, i + la);
-        i += lb;
-    }
-    return buf;
-};
-
 public method .from_list() {
     arg list;
     var buf, i;
@@ -89,3 +69,5 @@ public method .to_list() {
 public method .to_string(): native;
 
 public method .to_strings(): native;
+
+public method .bufsub(): native;
