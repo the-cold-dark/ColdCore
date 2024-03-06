@@ -159,7 +159,7 @@ public method .do_menu() {
     
     // 'skip, 'exit and such can be specified in the menu call. If these
     // are included, accept_skip, accept_exit, etc. will be set to 1. If
-    // the user then selects the approprate character, 'skip, 'exit, etc.
+    // the user then selects the appropriate character, 'skip, 'exit, etc.
     // will be returned instead of the character. Why? I don't know.
     if (accept_skip && (instr == "+"))
         instr = 'skip;

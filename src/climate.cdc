@@ -42,13 +42,13 @@ public method .add_weather_cmd() {
 };
 
 public method .advance() {
-    arg current, season, dependancies;
+    arg current, season, dependencies;
     var dists, i, w, d, fuzz;
     
     fuzz = 3;
     dists = ._probabilities(current, season, fuzz);
     dists = dists.sort(dists.slice(2));
-    for i in (dependancies) {
+    for i in (dependencies) {
         d = (i[1]).get_setting("weather-time", $realm);
         dists += ((i[2]) * ((d[3])._probabilities(d[1], d[2], fuzz))) / 100;
     }

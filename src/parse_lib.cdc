@@ -257,7 +257,7 @@ public method .ordinal_reference() {
     num = toint(rx[1]) || ((rx[1]) in ordinal);
     return [rx[2], num];
     
-    // Original code from LamdaMOO, Author Unknown
+    // Original code from LambdaMOO, Author Unknown
 };
 
 public method .parse_method_access() {

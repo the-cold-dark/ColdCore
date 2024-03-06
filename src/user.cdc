@@ -1627,7 +1627,7 @@ public method .linelen() {
         return cols - 1;
     return 79;
     
-    // backwards compatability, older tiny style systems
+    // backwards compatibility, older tiny style systems
     // want linelen to actually be cols - 1
 };
 
