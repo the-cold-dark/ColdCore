@@ -90,7 +90,7 @@ public method ._verb_singular() {
     if ((len > 2) && match_regexp(string, "n't *$"))
         return (._verb_singular(string.subrange(1, len - 3))) + "n't";
     else if ((a = string in (verb_exceptions.values())))
-        return (verb_excetions.keys())[a];
+        return (verb_exceptions.keys())[a];
     return ._add_s(string, len);
 };
 

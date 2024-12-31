@@ -170,7 +170,7 @@ public method .configure() {
     
     // This is for post-creation configuration of a VR object.  It is used
     // to interactively configure the VR aspects and behaviour of an object.
-    // It should be optional, any command hooking into confingure should check
+    // It should be optional, any command hooking into configure should check
     // for a -conf?igure option first (which would imply skipping configuration).
     //
     // Overriding methods should pass() first, giving priority to their

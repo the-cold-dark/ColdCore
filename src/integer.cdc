@@ -3,7 +3,7 @@ new object $integer: $libraries;
 
 var $integer ones = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 var $integer teens = ["eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
-var $integer tens = ["ten", "twenty", "thirty", "fourty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+var $integer tens = ["ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
 var $root created_on = 796268969;
 var $root flags = ['methods, 'code, 'variables, 'core];
 var $root help_node = $help_obj_integer;
