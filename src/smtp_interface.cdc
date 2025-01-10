@@ -160,7 +160,7 @@ public method .parse_line() {
         method = definer().get_cmd(cmd);
     } with {
         (.connection()).write("500 unrecognized command");
-        return 'disconenct;
+        return 'disconnect;
     }
     return .(method)(args);
 };

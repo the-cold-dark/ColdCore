@@ -586,7 +586,7 @@ public method .startup() {
     client_data = cdata;
     if ((| (sender().local_editor()) == 'mcp |)) {
         // Next time, when you have a clever idea about edit name, check
-        // it for non-method editting sessions
+        // it for non-method editing sessions
         sender.ptell([(("#$# edit name: " + (.session_name())) + " upload: @mcp-upload-session ") + (.name()), @text, "."], #[['nomod, 1]]);
         text = 'mcp;
         sender.store_editor();

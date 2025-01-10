@@ -1471,7 +1471,7 @@ protected method .format_method() {
     arg obj, method, format, @opts;
     var code, opt, flags, f;
     
-    // this needs to be on $programmer ot get the programmers perms
+    // this needs to be on $programmer to get the programmers perms
     [(opt ?= "")] = opts;
     code = obj.list_method(method);
     flags = obj.method_flags(method);

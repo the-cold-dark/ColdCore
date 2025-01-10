@@ -569,7 +569,7 @@ protected method .build_generate_path() {
         if (path.is($path))
             throw(~stop, (((sname[1]) + " is already a path from ") + (source.name())) + ".");
         if (path.source(dest))
-            throw(~stop, (path.namef('ref)) + " is alread linked.");
+            throw(~stop, (path.namef('ref)) + " is already linked.");
     }
     if (dpname) {
         [dpname] = dpname;
@@ -582,7 +582,7 @@ protected method .build_generate_path() {
             if (path.is($path))
                 throw(~stop, (((dname[1]) + " is already a path from ") + (dest.name())) + ".");
             if (path.source(source))
-                throw(~stop, (path.namef('ref)) + " is alread linked.");
+                throw(~stop, (path.namef('ref)) + " is already linked.");
         }
     }
     if (!path) {

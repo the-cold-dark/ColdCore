@@ -45,7 +45,7 @@ public method .interactive() {
     cinfo = ((info['browser_auth])[2]).join(" ");
     page = (info['directory_object]).build_header(headers, info, args);
     page += ["<style type=\"text/css\">"];
-    page += ["BODY { margin-left: 0; margin-right: 0; margin-top: 0; margin-botton: 0; }"];
+    page += ["BODY { margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; }"];
     page += ["</style>"];
     page += ["<applet CODEBASE=\"/file/CupOmud/\" code=\"CupOmud.class\""];
     page += ["height=100% width=100%"];
